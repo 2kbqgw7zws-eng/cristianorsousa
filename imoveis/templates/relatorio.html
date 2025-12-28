@@ -14,17 +14,22 @@
         .btn-pdf:hover { background-color: #219150; transform: translateY(-1px); }
         .btn-excel { background-color: #1D6F42; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-excel:hover { background-color: #145231; transform: translateY(-1px); }
+        
         .header-geral { background: #2c3e50; color: white; padding: 25px; border-radius: 10px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .header-geral h1 { margin: 0 0 20px 0; font-size: 22px; border-bottom: 1px solid #4a627a; padding-bottom: 10px; }
-        .kpi-container { display: flex; gap: 20px; justify-content: space-between; }
-        .kpi-box { text-align: center; flex: 1; }
-        .kpi-value { font-size: 24px; font-weight: bold; color: #4cd137; }
-        .kpi-label { font-size: 12px; opacity: 0.8; text-transform: uppercase; margin-bottom: 5px; }
+        
+        .kpi-container { display: flex; gap: 15px; justify-content: space-between; flex-wrap: wrap; }
+        .kpi-box { text-align: center; flex: 1; min-width: 150px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; }
+        .kpi-value { font-size: 22px; font-weight: bold; margin-top: 5px; }
+        .kpi-label { font-size: 11px; opacity: 0.8; text-transform: uppercase; }
+        
         .imovel-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
-        .imovel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .imovel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
         .imovel-title { font-size: 20px; font-weight: bold; color: #2c3e50; }
-        .stats-row { display: flex; gap: 20px; font-size: 14px; color: #555; }
-        .stat-item { background: #f8f9fa; padding: 5px 10px; border-radius: 5px; }
+        
+        .stats-row { display: flex; gap: 15px; font-size: 13px; color: #555; flex-wrap: wrap; }
+        .stat-item { background: #f8f9fa; padding: 6px 12px; border-radius: 5px; border: 1px solid #eee; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #7f8c8d; font-size: 12px; text-transform: uppercase; }
         td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -46,15 +51,19 @@
     </div>
 
     <div class="header-geral">
-        <h1>Resultados Consolidados ({{ periodo_dias }} dias considerados)</h1>
+        <h1>Resultados Consolidados ({{ periodo_dias }} dias analisados)</h1>
         <div class="kpi-container">
             <div class="kpi-box">
-                <div class="kpi-label">Faturamento</div>
-                <div class="kpi-value">R$ {{ geral.total_faturado|floatformat:2 }}</div>
+                <div class="kpi-label">Faturamento Bruto</div>
+                <div class="kpi-value" style="color: #4cd137;">R$ {{ geral.total_faturado|floatformat:2 }}</div>
             </div>
             <div class="kpi-box">
-                <div class="kpi-label">Locações</div>
-                <div class="kpi-value" style="color: white;">{{ geral.total_locacoes }}</div>
+                <div class="kpi-label">Total Despesas</div>
+                <div class="kpi-value" style="color: #ff7675;">R$ {{ geral.total_despesa|floatformat:2 }}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">Lucro Líquido</div>
+                <div class="kpi-value" style="color: #f1c40f;">R$ {{ geral.lucro_liquido|floatformat:2 }}</div>
             </div>
             <div class="kpi-box">
                 <div class="kpi-label">Dias Ocupados</div>
@@ -62,11 +71,7 @@
             </div>
             <div class="kpi-box">
                 <div class="kpi-label">Dias Desocupados</div>
-                <div class="kpi-value" style="color: #e74c3c;">{{ geral.dias_desocupados }}</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-label">Ticket Médio</div>
-                <div class="kpi-value" style="color: #f1c40f;">R$ {{ geral.ticket_medio|floatformat:2 }}</div>
+                <div class="kpi-value" style="color: #fff;">{{ geral.dias_desocupados }}</div>
             </div>
         </div>
     </div>
@@ -76,27 +81,33 @@
         <div class="imovel-header">
             <div class="imovel-title">🏢 {{ imovel.nome }}</div>
             <div class="stats-row">
-                <div class="stat-item">💰 Fat: <strong>R$ {{ imovel.faturamento_total|floatformat:2 }}</strong></div>
+                <div class="stat-item">💰 Bruto: <strong>R$ {{ imovel.faturamento_total|floatformat:2 }}</strong></div>
+                <div class="stat-item" style="color: #d63031;">💸 Gastos: <strong>R$ {{ imovel.total_despesa|floatformat:2 }}</strong></div>
+                <div class="stat-item" style="color: #27ae60;">📈 Lucro: <strong>R$ {{ imovel.lucro_liquido|floatformat:2 }}</strong></div>
                 <div class="stat-item">📅 Ocupados: <strong>{{ imovel.dias_ocupados }}</strong></div>
-                <div class="stat-item" style="color: #c0392b;">🚪 Livres: <strong>{{ imovel.dias_desocupados }}</strong></div>
-                <div class="stat-item">🏷️ Médio: <strong>R$ {{ imovel.ticket_medio|floatformat:2 }}</strong></div>
+                <div class="stat-item">🚪 Livres: <strong>{{ imovel.dias_desocupados }}</strong></div>
             </div>
         </div>
 
         <table>
             <thead>
-                <tr><th>Mês</th><th>Locações</th><th>Valor Médio Diária</th><th>Maior Diária</th></tr>
+                <tr>
+                    <th>Mês</th>
+                    <th>Locações</th>
+                    <th>Ticket Médio</th>
+                    <th>Faturamento Mês</th>
+                </tr>
             </thead>
             <tbody>
                 {% for mes in imovel.meses %}
                 <tr>
                     <td><strong>{{ mes.mes_ref|date:"F Y" }}</strong></td>
                     <td>{{ mes.qtd }} reservas</td>
-                    <td class="money" style="color: #2980b9;">R$ {{ mes.media|floatformat:2 }}</td>
-                    <td class="money">R$ {{ mes.maior|floatformat:2 }}</td>
+                    <td class="money">R$ {{ mes.media|floatformat:2 }}</td>
+                    <td class="money" style="color: #2980b9;">R$ {{ mes.total|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" style="color: #999;">Sem locações registradas em {{ ano }}.</td></tr>
+                <tr><td colspan="4" style="color: #999; text-align: center; padding: 20px;">Sem movimentação registrada para este imóvel em {{ ano }}.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
