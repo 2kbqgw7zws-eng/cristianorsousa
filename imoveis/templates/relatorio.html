@@ -5,22 +5,16 @@
     <title>Relatório Gerencial</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 30px; background-color: #f0f2f5; color: #333; }
-        
-        /* Estilo do Resumo Geral (Topo) */
         .header-geral { background: #2c3e50; color: white; padding: 25px; border-radius: 10px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .header-geral h1 { margin: 0 0 20px 0; font-size: 22px; border-bottom: 1px solid #4a627a; padding-bottom: 10px; }
         .kpi-container { display: flex; gap: 20px; justify-content: space-between; }
         .kpi-box { text-align: center; }
         .kpi-value { font-size: 28px; font-weight: bold; color: #4cd137; }
         .kpi-label { font-size: 14px; opacity: 0.8; text-transform: uppercase; }
-
-        /* Estilo Por Imóvel */
         .imovel-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
         .imovel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .imovel-title { font-size: 20px; font-weight: bold; color: #2c3e50; }
         .tag-anual { background: #e1f0fa; color: #2980b9; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-
-        /* Tabela */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #7f8c8d; font-size: 12px; text-transform: uppercase; }
         td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -28,5 +22,56 @@
     </style>
 </head>
 <body>
-
-    <div class="header
+    <div class="header-geral">
+        <h1>Resumo Geral da Carteira - {{ ano }}</h1>
+        <div class="kpi-container">
+            <div class="kpi-box">
+                <div class="kpi-label">Faturamento Total</div>
+                <div class="kpi-value">R$ {{ geral.total_faturado|floatformat:2 }}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">Dias Ocupados</div>
+                <div class="kpi-value" style="color: white;">{{ geral.dias_ocupados }}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">Total Locações</div>
+                <div class="kpi-value" style="color: white;">{{ geral.total_locacoes }}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">Diária Média Geral</div>
+                <div class="kpi-value" style="color: #f1c40f;">R$ {{ geral.ticket_medio|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    {% for imovel in dados_imoveis %}
+    <div class="imovel-card">
+        <div class="imovel-header">
+            <div class="imovel-title">🏢 {{ imovel.nome }}</div>
+            <div class="tag-anual">
+                Acumulado Total: R$ {{ imovel.faturamento_total|floatformat:2 }} 
+                <span style="font-weight: normal; color: #666;">({{ imovel.dias_ocupados }} dias)</span>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Mês</th><th>Locações</th><th>Valor Médio Diária</th><th>Maior Diária</th></tr>
+            </thead>
+            <tbody>
+                {% for mes in imovel.meses %}
+                <tr>
+                    <td><strong>{{ mes.mes_ref|date:"F Y" }}</strong></td>
+                    <td>{{ mes.qtd }} reservas</td>
+                    <td class="money" style="color: #2980b9;">R$ {{ mes.media|floatformat:2 }}</td>
+                    <td class="money">R$ {{ mes.maior|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Sem dados mensais ainda.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% empty %}
+        <p style="text-align: center; color: #999;">Nenhum imóvel com locações este ano.</p>
+    {% endfor %}
+</body>
+</html>
