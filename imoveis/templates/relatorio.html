@@ -5,12 +5,21 @@
     <title>Relatório Gerencial</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 30px; background-color: #f0f2f5; color: #333; }
+        
+        /* Navegação de Ano */
+        .ano-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fff; padding: 10px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .btn-ano { text-decoration: none; color: #2c3e50; font-weight: bold; padding: 8px 15px; border-radius: 5px; background: #e1f0fa; transition: 0.3s; }
+        .btn-ano:hover { background: #3498db; color: white; }
+        .ano-atual { font-size: 24px; font-weight: bold; color: #2c3e50; }
+
+        /* Estilo do Resumo Geral */
         .header-geral { background: #2c3e50; color: white; padding: 25px; border-radius: 10px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .header-geral h1 { margin: 0 0 20px 0; font-size: 22px; border-bottom: 1px solid #4a627a; padding-bottom: 10px; }
         .kpi-container { display: flex; gap: 20px; justify-content: space-between; }
         .kpi-box { text-align: center; }
         .kpi-value { font-size: 28px; font-weight: bold; color: #4cd137; }
         .kpi-label { font-size: 14px; opacity: 0.8; text-transform: uppercase; }
+
         .imovel-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
         .imovel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .imovel-title { font-size: 20px; font-weight: bold; color: #2c3e50; }
@@ -22,8 +31,15 @@
     </style>
 </head>
 <body>
+
+    <div class="ano-nav">
+        <a href="?ano={{ ano_anterior }}" class="btn-ano">❮ {{ ano_anterior }}</a>
+        <span class="ano-atual">📅 Ano Referência: {{ ano }}</span>
+        <a href="?ano={{ ano_proximo }}" class="btn-ano">{{ ano_proximo }} ❯</a>
+    </div>
+
     <div class="header-geral">
-        <h1>Resumo Geral da Carteira - {{ ano }}</h1>
+        <h1>Resultados Consolidados de {{ ano }}</h1>
         <div class="kpi-container">
             <div class="kpi-box">
                 <div class="kpi-label">Faturamento Total</div>
@@ -43,18 +59,25 @@
             </div>
         </div>
     </div>
+
     {% for imovel in dados_imoveis %}
     <div class="imovel-card">
         <div class="imovel-header">
             <div class="imovel-title">🏢 {{ imovel.nome }}</div>
             <div class="tag-anual">
-                Acumulado Total: R$ {{ imovel.faturamento_total|floatformat:2 }} 
+                Acumulado {{ ano }}: R$ {{ imovel.faturamento_total|floatformat:2 }} 
                 <span style="font-weight: normal; color: #666;">({{ imovel.dias_ocupados }} dias)</span>
             </div>
         </div>
+
         <table>
             <thead>
-                <tr><th>Mês</th><th>Locações</th><th>Valor Médio Diária</th><th>Maior Diária</th></tr>
+                <tr>
+                    <th>Mês</th>
+                    <th>Locações</th>
+                    <th>Valor Médio Diária</th>
+                    <th>Maior Diária</th>
+                </tr>
             </thead>
             <tbody>
                 {% for mes in imovel.meses %}
@@ -65,13 +88,12 @@
                     <td class="money">R$ {{ mes.maior|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4">Sem dados mensais ainda.</td></tr>
+                <tr><td colspan="4" style="color: #999;">Sem locações registradas em {{ ano }}.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    {% empty %}
-        <p style="text-align: center; color: #999;">Nenhum imóvel com locações este ano.</p>
     {% endfor %}
+
 </body>
 </html>
