@@ -4,8 +4,10 @@ from django.db.models import Sum, Count, Avg, Max
 from django.db.models.functions import TruncMonth
 from .models import Imovel, Locacao
 import datetime
+import openpyxl # <--- Nova biblioteca
+from openpyxl.styles import Font, Alignment, PatternFill
 from django.template.loader import get_template
-from xhtml2pdf import pisa  # <--- ESSA LINHA É CRUCIAL
+from xhtml2pdf import pisa
 
 # --- FUNÇÃO AUXILIAR ---
 def buscar_dados_relatorio(ano_selecionado):
@@ -56,7 +58,7 @@ def relatorio_geral(request):
     contexto = buscar_dados_relatorio(ano)
     return render(request, 'relatorio.html', contexto)
 
-# --- VIEW 2: PDF (A FUNÇÃO QUE ESTÁ FALTANDO) ---
+# --- VIEW 2: PDF ---
 def download_relatorio_pdf(request):
     hoje = datetime.date.today()
     try:
@@ -73,7 +75,92 @@ def download_relatorio_pdf(request):
     response['Content-Disposition'] = f'attachment; filename="Relatorio_{ano}.pdf"'
 
     pisa_status = pisa.CreatePDF(html, dest=response)
-
     if pisa_status.err:
-        return HttpResponse('Erros ao gerar PDF <pre>' + html + '</pre>')
+        return HttpResponse('Erros ao gerar PDF')
+    return response
+
+# --- VIEW 3: EXCEL (NOVA) ---
+def download_relatorio_excel(request):
+    hoje = datetime.date.today()
+    try:
+        ano = int(request.GET.get('ano', hoje.year))
+    except ValueError:
+        ano = hoje.year
+
+    dados = buscar_dados_relatorio(ano)
+    
+    # 1. Cria o Arquivo Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Relatorio {ano}"
+
+    # Estilos
+    bold_font = Font(bold=True)
+    header_fill = PatternFill("solid", fgColor="2c3e50") # Azul escuro
+    header_font = Font(bold=True, color="FFFFFF")
+    money_format = 'R$ #,##0.00'
+
+    # 2. Cabeçalho Geral
+    ws['A1'] = f"RELATÓRIO CONSOLIDADO - {ano}"
+    ws['A1'].font = Font(size=14, bold=True)
+    ws.merge_cells('A1:D1')
+
+    ws['A3'] = "Faturamento Total"
+    ws['B3'] = "Dias Ocupados"
+    ws['C3'] = "Locações"
+    ws['D3'] = "Ticket Médio"
+    for cell in ws[3]: cell.font = bold_font
+
+    ws['A4'] = dados['geral']['total_faturado'] or 0
+    ws['A4'].number_format = money_format
+    ws['B4'] = dados['geral']['dias_ocupados']
+    ws['C4'] = dados['geral']['total_locacoes']
+    ws['D4'] = dados['geral']['ticket_medio'] or 0
+    ws['D4'].number_format = money_format
+
+    # 3. Detalhes por Imóvel
+    current_row = 7
+    for imovel in dados['dados_imoveis']:
+        # Nome do Imóvel
+        ws.cell(row=current_row, column=1, value=imovel['nome']).font = Font(size=12, bold=True, color="2c3e50")
+        ws.cell(row=current_row, column=4, value=f"Total: R$ {imovel['faturamento_total']}").font = bold_font
+        current_row += 1
+
+        # Cabeçalho da Tabela do Imóvel
+        headers = ["Mês", "Reservas", "Média Diária", "Maior Diária"]
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=current_row, column=col_num, value=header)
+            cell.fill = header_fill
+            cell.font = header_font
+        current_row += 1
+
+        # Dados mensais
+        if not imovel['meses']:
+            ws.cell(row=current_row, column=1, value="Sem movimentação.")
+            current_row += 1
+        else:
+            for mes in imovel['meses']:
+                ws.cell(row=current_row, column=1, value=mes['mes_ref'].strftime("%B/%Y"))
+                ws.cell(row=current_row, column=2, value=mes['qtd'])
+                
+                c3 = ws.cell(row=current_row, column=3, value=mes['media'])
+                c3.number_format = money_format
+                
+                c4 = ws.cell(row=current_row, column=4, value=mes['maior'])
+                c4.number_format = money_format
+                
+                current_row += 1
+        
+        current_row += 2 # Espaço entre imóveis
+
+    # Ajustar largura das colunas
+    ws.column_dimensions['A'].width = 20
+    ws.column_dimensions['B'].width = 15
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 15
+
+    # Retornar o arquivo
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="Relatorio_Imoveis_{ano}.xlsx"'
+    wb.save(response)
     return response

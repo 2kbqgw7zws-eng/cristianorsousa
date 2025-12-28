@@ -33,9 +33,9 @@
         
         .ano-atual { font-size: 24px; font-weight: bold; color: #2c3e50; }
 
-        /* BOTÃO PDF VERDE */
+        /* BOTÃO PDF (Verde Claro) */
         .btn-pdf {
-            background-color: #27ae60; /* Verde */
+            background-color: #27ae60; 
             color: white;
             padding: 10px 20px;
             text-decoration: none;
@@ -48,7 +48,26 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .btn-pdf:hover { 
-            background-color: #219150; /* Verde mais escuro ao passar o mouse */
+            background-color: #219150; 
+            transform: translateY(-1px);
+        }
+
+        /* BOTÃO EXCEL (Verde Escuro) */
+        .btn-excel {
+            background-color: #1D6F42; /* Cor clássica do Excel */
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-excel:hover { 
+            background-color: #145231; 
             transform: translateY(-1px);
         }
 
@@ -79,9 +98,15 @@
             <a href="?ano={{ ano_proximo }}" class="btn-ano">{{ ano_proximo }} ❯</a>
         </div>
         
-        <a href="/relatorio/pdf/?ano={{ ano }}" class="btn-pdf">
-            📄 Baixar PDF
-        </a>
+        <div style="display: flex; gap: 10px;">
+            <a href="/relatorio/excel/?ano={{ ano }}" class="btn-excel">
+                📊 Baixar Excel
+            </a>
+
+            <a href="/relatorio/pdf/?ano={{ ano }}" class="btn-pdf">
+                📄 Baixar PDF
+            </a>
+        </div>
     </div>
 
     <div class="header-geral">
@@ -131,15 +156,4 @@
                     <td><strong>{{ mes.mes_ref|date:"F Y" }}</strong></td>
                     <td>{{ mes.qtd }} reservas</td>
                     <td class="money" style="color: #2980b9;">R$ {{ mes.media|floatformat:2 }}</td>
-                    <td class="money">R$ {{ mes.maior|floatformat:2 }}</td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="4" style="color: #999;">Sem locações registradas em {{ ano }}.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% endfor %}
-
-</body>
-</html>
+                    <td class="
