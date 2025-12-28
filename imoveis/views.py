@@ -23,6 +23,7 @@ def buscar_dados_relatorio(ano_selecionado):
     dias_corridos_ano = (fim_periodo - inicio_ano).days + 1
     if dias_corridos_ano < 0: dias_corridos_ano = 0
 
+    # Mantemos o filtro por ano apenas para o cálculo do resumo financeiro anual
     locacoes_ano = Locacao.objects.filter(data_entrada__year=ano_selecionado)
     despesas_ano = Despesa.objects.filter(data_pagamento__year=ano_selecionado)
 
@@ -70,7 +71,8 @@ def buscar_dados_relatorio(ano_selecionado):
             'total_locacoes': locs_imovel.count(),
             'ticket_medio': (faturamento / locs_imovel.count()) if locs_imovel.count() > 0 else 0,
             'meses': meses,
-            'locacoes_detalhadas': locs_imovel # Adicionado para facilitar o PDF
+            # ALTERAÇÃO: Pegamos todas as locações do imóvel (incluindo 2026) para o PDF
+            'locacoes_detalhadas': Locacao.objects.filter(imovel=imovel).order_by('data_entrada')
         })
 
         total_fat_geral += faturamento
@@ -109,39 +111,37 @@ def download_relatorio_pdf(request):
     hoje = datetime.date.today()
     try: ano = int(request.GET.get('ano', hoje.year))
     except ValueError: ano = hoje.year
+    
     contexto = buscar_dados_relatorio(ano)
+    
+    # Recalculamos o resumo geral para o PDF considerar TUDO e não só o ano selecionado
+    todas_locacoes = Locacao.objects.all()
+    contexto['geral']['total_faturado'] = todas_locacoes.aggregate(Sum('valor_cobrado_diaria'))['valor_cobrado_diaria__sum'] or 0
+    contexto['geral']['total_locacoes'] = todas_locacoes.count()
+    contexto['ano'] = "Geral (Consolidado)"
+
     template = get_template('relatorio_pdf.html')
     html = template.render(contexto)
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Relatorio_{ano}.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="Relatorio_Geral_Locacoes.pdf"'
     pisa.CreatePDF(html, dest=response)
     return response
 
-# FUNÇÃO ATUALIZADA PARA O EXCEL COM CPF E TELEFONE
 def download_relatorio_excel(request):
-    hoje = datetime.date.today()
-    try: 
-        ano = int(request.GET.get('ano', hoje.year))
-    except ValueError: 
-        ano = hoje.year
-    
-    # Busca todas as locações do ano para o Excel detalhado
-    locacoes = Locacao.objects.filter(data_entrada__year=ano).order_by('-data_entrada')
+    # ALTERAÇÃO: Busca todas as locações existentes no sistema, sem filtro de ano
+    locacoes = Locacao.objects.all().order_by('data_entrada')
     
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = f"Locacoes {ano}"
+    ws.title = "Todas as Locações"
     
-    # Cabeçalho exatamente como na sua tela do Admin
     colunas = ['IMÓVEL', 'CLIENTE', 'CPF', 'TELEFONE', 'DATA ENTRADA', 'DATA SAÍDA']
     ws.append(colunas)
     
-    # Formatação do cabeçalho
     for cell in ws[1]:
         cell.font = Font(bold=True)
         cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
 
-    # Adicionando os dados linha por linha
     for loc in locacoes:
         ws.append([
             loc.imovel.nome,
@@ -152,7 +152,6 @@ def download_relatorio_excel(request):
             loc.data_saida.strftime('%d/%m/%Y')
         ])
 
-    # Ajuste automático de largura das colunas
     for col in ws.columns:
         max_length = 0
         column = col[0].column_letter
@@ -164,6 +163,6 @@ def download_relatorio_excel(request):
         ws.column_dimensions[column].width = max_length + 2
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="Relatorio_Locacoes_{ano}.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="Relatorio_Completo_Locacoes.xlsx"'
     wb.save(response)
     return response
