@@ -9,25 +9,25 @@ class ImovelAdmin(admin.ModelAdmin):
 
 @admin.register(Locacao)
 class LocacaoAdmin(admin.ModelAdmin):
-    # 1. Adicionamos CPF e Telefone na listagem principal
+    # 1. Exibição das colunas exatamente como na sua imagem
     list_display = ('imovel', 'cliente', 'cpf', 'telefone', 'data_entrada', 'data_saida')
     
-    # 2. Adicionamos uma barra de pesquisa (busca por nome ou CPF)
+    # 2. Barra de pesquisa por nome ou CPF
     search_fields = ('cliente', 'cpf')
     
-    # 3. Adicionamos os filtros laterais
+    # 3. Filtros laterais
     list_filter = ('imovel', 'data_entrada')
 
-    # 4. Criamos as opções de clique no menu "Ação"
+    # 4. Opções do menu "Ação" com texto simples (sem ícones)
     actions = ['gerar_relatorio_pdf', 'gerar_relatorio_excel']
 
     def gerar_relatorio_pdf(self, request, queryset):
         return redirect('/relatorio/pdf/')
-    gerar_relatorio_pdf.short_description = "📄 Gerar PDF (Ano Completo)"
+    gerar_relatorio_pdf.short_description = "Gerar PDF"
 
     def gerar_relatorio_excel(self, request, queryset):
         return redirect('/relatorio/excel/')
-    gerar_relatorio_excel.short_description = "📊 Gerar Excel (Ano Completo)"
+    gerar_relatorio_excel.short_description = "Gerar Excel"
 
 @admin.register(Despesa)
 class DespesaAdmin(admin.ModelAdmin):

@@ -49,7 +49,6 @@ def buscar_dados_relatorio(ano_selecionado):
         total_despesa = desps_imovel.aggregate(total=Sum('valor'))['total'] or 0
         lucro_liquido = faturamento - total_despesa
         
-        # CÁLCULO DE RENTABILIDADE (ROI)
         if imovel.valor_compra and imovel.valor_compra > 0:
             porcentagem_lucro = (lucro_liquido / imovel.valor_compra) * 100
         else:
@@ -65,12 +64,13 @@ def buscar_dados_relatorio(ano_selecionado):
             'faturamento_total': faturamento,
             'total_despesa': total_despesa,
             'lucro_liquido': lucro_liquido,
-            'porcentagem_lucro': porcentagem_lucro, # Novo campo enviado ao HTML
+            'porcentagem_lucro': porcentagem_lucro,
             'dias_ocupados': dias_ocupados,
             'dias_desocupados': max(0, dias_corridos_ano - dias_ocupados),
             'total_locacoes': locs_imovel.count(),
             'ticket_medio': (faturamento / locs_imovel.count()) if locs_imovel.count() > 0 else 0,
-            'meses': meses
+            'meses': meses,
+            'locacoes_detalhadas': locs_imovel # Adicionado para facilitar o PDF
         })
 
         total_fat_geral += faturamento
@@ -117,28 +117,53 @@ def download_relatorio_pdf(request):
     pisa.CreatePDF(html, dest=response)
     return response
 
+# FUNÇÃO ATUALIZADA PARA O EXCEL COM CPF E TELEFONE
 def download_relatorio_excel(request):
     hoje = datetime.date.today()
-    try: ano = int(request.GET.get('ano', hoje.year))
-    except ValueError: ano = hoje.year
-    dados = buscar_dados_relatorio(ano)
+    try: 
+        ano = int(request.GET.get('ano', hoje.year))
+    except ValueError: 
+        ano = hoje.year
+    
+    # Busca todas as locações do ano para o Excel detalhado
+    locacoes = Locacao.objects.filter(data_entrada__year=ano).order_by('-data_entrada')
     
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = f"Relatorio {ano}"
+    ws.title = f"Locacoes {ano}"
     
-    # Cabeçalho simples para evitar erro de variável response
-    ws['A1'] = f"RELATÓRIO FINANCEIRO - {ano}"
-    ws['A2'] = "Imóvel"
-    ws['B2'] = "Lucro Líquido"
-    ws['C2'] = "Rentabilidade %"
+    # Cabeçalho exatamente como na sua tela do Admin
+    colunas = ['IMÓVEL', 'CLIENTE', 'CPF', 'TELEFONE', 'DATA ENTRADA', 'DATA SAÍDA']
+    ws.append(colunas)
     
-    for row, imovel in enumerate(dados['dados_imoveis'], start=3):
-        ws.cell(row=row, column=1, value=imovel['nome'])
-        ws.cell(row=row, column=2, value=imovel['lucro_liquido'])
-        ws.cell(row=row, column=3, value=f"{imovel['porcentagem_lucro']:.2f}%")
+    # Formatação do cabeçalho
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+
+    # Adicionando os dados linha por linha
+    for loc in locacoes:
+        ws.append([
+            loc.imovel.nome,
+            loc.cliente,
+            loc.cpf,
+            loc.telefone,
+            loc.data_entrada.strftime('%d/%m/%Y'),
+            loc.data_saida.strftime('%d/%m/%Y')
+        ])
+
+    # Ajuste automático de largura das colunas
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except: pass
+        ws.column_dimensions[column].width = max_length + 2
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="Relatorio_{ano}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="Relatorio_Locacoes_{ano}.xlsx"'
     wb.save(response)
     return response

@@ -4,36 +4,42 @@
     <meta charset="UTF-8">
     <title>Relatório Gerencial</title>
     <style>
-        @page { size: a4 portrait; margin: 2cm; @frame footer_frame { -pdf-frame-content: footerContent; bottom: 1cm; margin-left: 2cm; margin-right: 2cm; height: 1cm; } }
-        body { font-family: Helvetica, sans-serif; color: #000; font-size: 11px; line-height: 1.4; }
-        h1 { font-size: 18px; text-transform: uppercase; text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-        .resumo-table { width: 100%; margin-bottom: 30px; border: 1px solid #000; }
-        .resumo-table td { padding: 10px; border: 1px solid #000; text-align: center; }
-        .label { font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .value { font-size: 14px; font-weight: bold; }
-        .imovel-section { margin-bottom: 25px; page-break-inside: avoid; }
-        .imovel-header { width: 100%; border-bottom: 1px solid #000; margin-bottom: 10px; padding-bottom: 5px; }
-        .imovel-nome { font-size: 14px; font-weight: bold; }
-        .imovel-total { text-align: right; font-size: 10px; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { background-color: #f0f0f0; border: 1px solid #000; padding: 5px; text-align: left; font-weight: bold; font-size: 10px; }
-        .data-table td { border: 1px solid #000; padding: 5px; }
+        @page { 
+            size: a4 portrait; 
+            margin: 1.5cm; 
+            @frame footer_frame { -pdf-frame-content: footerContent; bottom: 1cm; margin-left: 1.5cm; margin-right: 1.5cm; height: 1cm; } 
+        }
+        body { font-family: Helvetica, sans-serif; color: #000; font-size: 9px; line-height: 1.2; }
+        h1 { font-size: 16px; text-transform: uppercase; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 15px; }
+        
+        .resumo-table { width: 100%; margin-bottom: 20px; border: 1px solid #000; }
+        .resumo-table td { padding: 8px; border: 1px solid #000; text-align: center; }
+        .label { font-size: 8px; text-transform: uppercase; display: block; margin-bottom: 3px; }
+        .value { font-size: 11px; font-weight: bold; }
+        
+        .imovel-section { margin-bottom: 20px; }
+        .imovel-header { width: 100%; border-bottom: 1px solid #000; margin-bottom: 5px; padding-bottom: 3px; background-color: #eee; }
+        .imovel-nome { font-size: 11px; font-weight: bold; padding-left: 5px; }
+        
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .data-table th { background-color: #f0f0f0; border: 1px solid #000; padding: 4px; text-align: left; font-weight: bold; font-size: 8px; text-transform: uppercase; }
+        .data-table td { border: 1px solid #000; padding: 4px; vertical-align: middle; }
+        
         .text-right { text-align: right; }
         .no-data { text-align: center; font-style: italic; padding: 10px; }
-        #footerContent { text-align: center; font-size: 9px; border-top: 1px solid #000; padding-top: 5px; }
+        #footerContent { text-align: center; font-size: 8px; border-top: 1px solid #000; padding-top: 5px; }
     </style>
 </head>
 <body>
 
-    <h1>Relatório Consolidado - {{ ano }}</h1>
+    <h1>Relatório Detalhado de Locações - {{ ano }}</h1>
 
     <table class="resumo-table">
         <tr>
-            <td><span class="label">Faturamento</span><span class="value">R$ {{ geral.total_faturado|floatformat:2 }}</span></td>
-            <td><span class="label">Locações</span><span class="value">{{ geral.total_locacoes }}</span></td>
-            <td><span class="label">Ocupados</span><span class="value">{{ geral.dias_ocupados }} dias</span></td>
-            <td><span class="label">Desocupados</span><span class="value">{{ geral.dias_desocupados }} dias</span></td>
-            <td><span class="label">Ticket Médio</span><span class="value">R$ {{ geral.ticket_medio|floatformat:2 }}</span></td>
+            <td><span class="label">Faturamento Geral</span><span class="value">R$ {{ geral.total_faturado|floatformat:2 }}</span></td>
+            <td><span class="label">Total de Locações</span><span class="value">{{ geral.total_locacoes }}</span></td>
+            <td><span class="label">Lucro Líquido</span><span class="value">R$ {{ geral.lucro_liquido|floatformat:2 }}</span></td>
+            <td><span class="label">Dias Ocupados</span><span class="value">{{ geral.dias_ocupados }}</span></td>
         </tr>
     </table>
 
@@ -41,41 +47,39 @@
     <div class="imovel-section">
         <table class="imovel-header">
             <tr>
-                <td class="imovel-nome">{{ imovel.nome }}</td>
-                <td class="imovel-total">
-                    Fat: <strong>R$ {{ imovel.faturamento_total|floatformat:2 }}</strong> | 
-                    Ocup: <strong>{{ imovel.dias_ocupados }}</strong> | 
-                    Livre: <strong>{{ imovel.dias_desocupados }}</strong> |
-                    Médio: <strong>R$ {{ imovel.ticket_medio|floatformat:2 }}</strong>
-                </td>
+                <td class="imovel-nome">IMÓVEL: {{ imovel.nome }}</td>
             </tr>
         </table>
 
         <table class="data-table">
             <thead>
                 <tr>
-                    <th width="30%">Mês</th>
-                    <th width="20%">Qtd. Reservas</th>
-                    <th width="25%" class="text-right">Média Diária</th>
-                    <th width="25%" class="text-right">Maior Valor</th>
+                    <th width="25%">Cliente</th>
+                    <th width="20%">CPF</th>
+                    <th width="20%">Telefone</th>
+                    <th width="15%">Entrada</th>
+                    <th width="15%">Saída</th>
+                    <th width="5%" class="text-right">Lucro</th>
                 </tr>
             </thead>
             <tbody>
-                {% for mes in imovel.meses %}
+                {% for loc in imovel.locacoes_detalhadas %}
                 <tr>
-                    <td>{{ mes.mes_ref|date:"F Y" }}</td>
-                    <td>{{ mes.qtd }}</td>
-                    <td class="text-right">R$ {{ mes.media|floatformat:2 }}</td>
-                    <td class="text-right">R$ {{ mes.maior|floatformat:2 }}</td>
+                    <td>{{ loc.cliente }}</td>
+                    <td>{{ loc.cpf }}</td>
+                    <td>{{ loc.telefone }}</td>
+                    <td>{{ loc.data_entrada|date:"d/m/Y" }}</td>
+                    <td>{{ loc.data_saida|date:"d/m/Y" }}</td>
+                    <td class="text-right">R$ {{ loc.valor_cobrado_diaria|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" class="no-data">Sem locações.</td></tr>
+                <tr><td colspan="6" class="no-data">Sem movimentação para este imóvel.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% endfor %}
 
-    <div id="footerContent">Documento gerado automaticamente pelo Sistema Gestor Flats • Página <pdf:pagenumber></div>
+    <div id="footerContent">Documento gerado automaticamente pelo Sistema Gestor Flats em {% now "d/m/Y H:i" %} • Página <pdf:pagenumber></div>
 </body>
 </html>
