@@ -2,53 +2,49 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório Gerencial</title>
+    <title>Relatório Detalhado</title>
     <style>
         @page { 
             size: a4 portrait; 
             margin: 1cm; 
             @frame footer_frame { -pdf-frame-content: footerContent; bottom: 0.5cm; margin-left: 1cm; margin-right: 1cm; height: 1cm; } 
         }
-        body { font-family: Helvetica, sans-serif; color: #000; font-size: 9px; line-height: 1.4; }
+        body { font-family: Helvetica, sans-serif; color: #000; font-size: 9px; line-height: 1.6; }
         h1 { font-size: 16px; text-transform: uppercase; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 20px; }
         
-        /* Tabela de Resumo Superior */
-        .resumo-table { width: 100%; margin-bottom: 25px; border: 1px solid #000; }
+        .resumo-table { width: 100%; margin-bottom: 25px; border-collapse: collapse; }
         .resumo-table td { padding: 10px; border: 1px solid #000; text-align: center; vertical-align: middle; }
         .label { font-size: 7px; text-transform: uppercase; display: block; margin-bottom: 4px; }
-        .value { font-size: 12px; font-weight: bold; }
+        .value { font-size: 11px; font-weight: bold; }
         
-        /* Seções por Imóvel */
         .imovel-section { margin-bottom: 25px; }
-        .imovel-header { width: 100%; border: 1px solid #000; margin-bottom: 0px; padding: 6px; background-color: #f0f0f0; }
-        .imovel-nome { font-size: 11px; font-weight: bold; padding-left: 5px; }
+        .imovel-header { width: 100%; border: 1px solid #000; padding: 6px; background-color: #f0f0f0; margin-bottom: 0px; }
+        .imovel-nome { font-size: 11px; font-weight: bold; }
         
-        /* Tabela de Dados Detalhada */
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th { background-color: #e5e5e5; border: 1px solid #000; padding: 6px 4px; text-align: left; font-weight: bold; font-size: 8px; text-transform: uppercase; }
         .data-table td { border: 1px solid #000; padding: 8px 4px; vertical-align: middle; }
         
-        /* Colunas com larguras fixas para não encavalar */
         .col-cliente { width: 22%; }
         .col-cpf { width: 18%; }
         .col-tel { width: 18%; }
-        .col-data { width: 15%; }
-        .col-lucro { width: 12%; text-align: right; }
+        .col-ent { width: 15%; }
+        .col-sai { width: 15%; }
+        .col-luc { width: 12%; text-align: right; }
         
         .no-data { text-align: center; font-style: italic; padding: 15px; }
         #footerContent { text-align: center; font-size: 8px; border-top: 1px solid #000; padding-top: 5px; }
     </style>
 </head>
 <body>
-
-    <h1>Relatório Detalhado de Locações - {{ ano }} [cite: 1]</h1>
+    <h1>Relatório Detalhado de Locações - {{ ano }}</h1>
 
     <table class="resumo-table">
         <tr>
-            <td><span class="label">Faturamento Geral [cite: 2]</span><span class="value">R$ {{ geral.total_faturado|floatformat:2 }} [cite: 5]</span></td>
-            <td><span class="label">Total de Locações [cite: 3]</span><span class="value">{{ geral.total_locacoes }} [cite: 6]</span></td>
-            <td><span class="label">Lucro Líquido [cite: 4]</span><span class="value">R$ {{ geral.lucro_liquido|floatformat:2 }} [cite: 7]</span></td>
-            <td><span class="label">Dias Ocupados [cite: 10]</span><span class="value">{{ geral.dias_ocupados }} [cite: 11]</span></td>
+            <td><span class="label">Faturamento Geral</span><span class="value">R$ {{ geral.total_faturado|floatformat:2 }}</span></td>
+            <td><span class="label">Total de Locações</span><span class="value">{{ geral.total_locacoes }}</span></td>
+            <td><span class="label">Lucro Líquido</span><span class="value">R$ {{ geral.lucro_liquido|floatformat:2 }}</span></td>
+            <td><span class="label">Dias Ocupados</span><span class="value">{{ geral.dias_ocupados }}</span></td>
         </tr>
     </table>
 
@@ -56,33 +52,32 @@
     <div class="imovel-section">
         <table class="imovel-header">
             <tr>
-                <td class="imovel-nome">IMÓVEL: {{ imovel.nome }} [cite: 8]</td>
+                <td class="imovel-nome">IMÓVEL: {{ imovel.nome }}</td>
             </tr>
         </table>
-
         <table class="data-table">
             <thead>
                 <tr>
-                    <th class="col-cliente">Cliente </th>
-                    <th class="col-cpf">CPF </th>
-                    <th class="col-tel">Telefone </th>
-                    <th class="col-data">Entrada </th>
-                    <th class="col-data">Saída </th>
-                    <th class="col-lucro">Lucro </th>
+                    <th class="col-cliente">Cliente</th>
+                    <th class="col-cpf">CPF</th>
+                    <th class="col-tel">Telefone</th>
+                    <th class="col-ent">Entrada</th>
+                    <th class="col-sai">Saída</th>
+                    <th class="col-luc">Lucro</th>
                 </tr>
             </thead>
             <tbody>
                 {% for loc in imovel.locacoes_detalhadas %}
                 <tr>
-                    <td>{{ loc.cliente }} </td>
-                    <td>{{ loc.cpf }} </td>
-                    <td>{{ loc.telefone }} </td>
-                    <td>{{ loc.data_entrada|date:"d/m/Y" }} </td>
-                    <td>{{ loc.data_saida|date:"d/m/Y" }} </td>
-                    <td style="text-align: right;">R$ {{ loc.valor_cobrado_diaria|floatformat:2 }} </td>
+                    <td>{{ loc.cliente }}</td>
+                    <td>{{ loc.cpf }}</td>
+                    <td>{{ loc.telefone }}</td>
+                    <td>{{ loc.data_entrada|date:"d/m/Y" }}</td>
+                    <td>{{ loc.data_saida|date:"d/m/Y" }}</td>
+                    <td style="text-align: right;">R$ {{ loc.valor_cobrado_diaria|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" class="no-data">Sem movimentação para este imóvel. [cite: 19]</td></tr>
+                <tr><td colspan="6" class="no-data">Sem movimentação para este imóvel.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -90,7 +85,7 @@
     {% endfor %}
 
     <div id="footerContent">
-        Documento gerado automaticamente pelo Sistema Gestor Flats em {% now "d/m/Y H:i" %} • Página <pdf:pagenumber> [cite: 20]
+        Documento gerado em {% now "d/m/Y H:i" %} • Página <pdf:pagenumber>
     </div>
 </body>
 </html>
