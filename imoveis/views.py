@@ -65,7 +65,7 @@ def download_relatorio_pdf(request):
         ano = hoje.year
 
     contexto = buscar_dados_relatorio(ano)
-    template_path = 'relatorio.html'
+    template_path = 'relatorio_pdf.html'
     template = get_template(template_path)
     html = template.render(contexto)
 

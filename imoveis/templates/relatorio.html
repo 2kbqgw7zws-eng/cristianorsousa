@@ -4,120 +4,124 @@
     <meta charset="UTF-8">
     <title>Relatório Gerencial</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 30px; background-color: #f0f2f5; color: #333; }
-        
-        /* Navegação de Ano e PDF */
-        .ano-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fff; padding: 10px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .btn-ano { text-decoration: none; color: #2c3e50; font-weight: bold; padding: 8px 15px; border-radius: 5px; background: #e1f0fa; transition: 0.3s; }
-        .btn-ano:hover { background: #3498db; color: white; }
-        .ano-atual { font-size: 24px; font-weight: bold; color: #2c3e50; margin: 0 15px; }
-
-        /* Botão PDF (Vermelho) */
-        .btn-pdf {
-            background-color: #e74c3c;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
+        /* Configurações da Página A4 */
+        @page {
+            size: a4 portrait;
+            margin: 2cm;
+            @frame footer_frame {           /* Rodapé */
+                -pdf-frame-content: footerContent;
+                bottom: 1cm;
+                margin-left: 1cm;
+                margin-right: 1cm;
+                height: 1cm;
+            }
         }
-        .btn-pdf:hover { background-color: #c0392b; }
 
-        /* Estilo do Resumo Geral */
-        .header-geral { background: #2c3e50; color: white; padding: 25px; border-radius: 10px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .header-geral h1 { margin: 0 0 20px 0; font-size: 22px; border-bottom: 1px solid #4a627a; padding-bottom: 10px; }
-        .kpi-container { display: flex; gap: 20px; justify-content: space-between; }
-        .kpi-box { text-align: center; }
-        .kpi-value { font-size: 28px; font-weight: bold; color: #4cd137; }
-        .kpi-label { font-size: 14px; opacity: 0.8; text-transform: uppercase; }
+        body { font-family: Helvetica, sans-serif; color: #333; font-size: 12px; }
 
-        .imovel-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
-        .imovel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .imovel-title { font-size: 20px; font-weight: bold; color: #2c3e50; }
-        .tag-anual { background: #e1f0fa; color: #2980b9; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #7f8c8d; font-size: 12px; text-transform: uppercase; }
-        td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .money { font-family: monospace; font-weight: bold; }
+        /* Cabeçalho Geral */
+        .header-geral { 
+            background-color: #2c3e50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 5px; 
+            margin-bottom: 30px; 
+        }
+        h1 { font-size: 24px; margin: 0; padding-bottom: 10px; border-bottom: 1px solid #555; }
 
-        /* Evita quebra de página no PDF no meio da tabela */
-        tr { page-break-inside: avoid; }
+        /* Tabela de KPIs (Substitui o Flexbox) */
+        .kpi-table { width: 100%; margin-top: 15px; }
+        .kpi-table td { text-align: center; vertical-align: top; width: 25%; }
+        .kpi-label { font-size: 10px; text-transform: uppercase; opacity: 0.8; }
+        .kpi-value { font-size: 18px; font-weight: bold; color: #4cd137; margin-top: 5px; }
+
+        /* Cartões dos Imóveis */
+        .imovel-card { 
+            margin-bottom: 30px; 
+            padding: 10px;
+            border-left: 5px solid #3498db;
+            background-color: #f9f9f9;
+        }
+        .imovel-header-table { width: 100%; margin-bottom: 10px; }
+        .imovel-title { font-size: 16px; font-weight: bold; color: #2c3e50; }
+        .imovel-resumo { text-align: right; color: #666; font-size: 12px; }
+
+        /* Tabela de Dados */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { text-align: left; border-bottom: 2px solid #ccc; padding: 5px; font-size: 10px; color: #666; }
+        .data-table td { border-bottom: 1px solid #eee; padding: 8px 5px; }
+        .money { font-family: Courier; font-weight: bold; }
+
+        /* Rodapé */
+        #footerContent { text-align: right; font-size: 9px; color: #999; }
     </style>
 </head>
 <body>
 
-    <div class="ano-nav">
-        <div>
-            <a href="?ano={{ ano_anterior }}" class="btn-ano">❮ {{ ano_anterior }}</a>
-            <span class="ano-atual">📅 {{ ano }}</span>
-            <a href="?ano={{ ano_proximo }}" class="btn-ano">{{ ano_proximo }} ❯</a>
-        </div>
-        
-        <a href="/relatorio/pdf/?ano={{ ano }}" class="btn-pdf">
-            📄 Baixar PDF
-        </a>
-    </div>
-
     <div class="header-geral">
-        <h1>Resultados Consolidados de {{ ano }}</h1>
-        <div class="kpi-container">
-            <div class="kpi-box">
-                <div class="kpi-label">Faturamento Total</div>
-                <div class="kpi-value">R$ {{ geral.total_faturado|floatformat:2 }}</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-label">Dias Ocupados</div>
-                <div class="kpi-value" style="color: white;">{{ geral.dias_ocupados }}</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-label">Total Locações</div>
-                <div class="kpi-value" style="color: white;">{{ geral.total_locacoes }}</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-label">Diária Média Geral</div>
-                <div class="kpi-value" style="color: #f1c40f;">R$ {{ geral.ticket_medio|floatformat:2 }}</div>
-            </div>
-        </div>
+        <h1>Relatório Consolidado - {{ ano }}</h1>
+        <table class="kpi-table">
+            <tr>
+                <td>
+                    <div class="kpi-label">Faturamento</div>
+                    <div class="kpi-value">R$ {{ geral.total_faturado|floatformat:2 }}</div>
+                </td>
+                <td>
+                    <div class="kpi-label">Dias Ocupados</div>
+                    <div class="kpi-value" style="color: white;">{{ geral.dias_ocupados }}</div>
+                </td>
+                <td>
+                    <div class="kpi-label">Locações</div>
+                    <div class="kpi-value" style="color: white;">{{ geral.total_locacoes }}</div>
+                </td>
+                <td>
+                    <div class="kpi-label">Ticket Médio</div>
+                    <div class="kpi-value" style="color: #f1c40f;">R$ {{ geral.ticket_medio|floatformat:2 }}</div>
+                </td>
+            </tr>
+        </table>
     </div>
 
     {% for imovel in dados_imoveis %}
     <div class="imovel-card">
-        <div class="imovel-header">
-            <div class="imovel-title">🏢 {{ imovel.nome }}</div>
-            <div class="tag-anual">
-                Acumulado {{ ano }}: R$ {{ imovel.faturamento_total|floatformat:2 }} 
-                <span style="font-weight: normal; color: #666;">({{ imovel.dias_ocupados }} dias)</span>
-            </div>
-        </div>
+        <table class="imovel-header-table">
+            <tr>
+                <td class="imovel-title">🏢 {{ imovel.nome }}</td>
+                <td class="imovel-resumo">
+                    <strong>Total: R$ {{ imovel.faturamento_total|floatformat:2 }}</strong>
+                    <br>({{ imovel.dias_ocupados }} dias)
+                </td>
+            </tr>
+        </table>
 
-        <table>
+        <table class="data-table">
             <thead>
                 <tr>
-                    <th>Mês</th>
-                    <th>Locações</th>
-                    <th>Valor Médio Diária</th>
-                    <th>Maior Diária</th>
+                    <th width="30%">Mês</th>
+                    <th width="20%">Reservas</th>
+                    <th width="25%">Média Diária</th>
+                    <th width="25%">Maior Diária</th>
                 </tr>
             </thead>
             <tbody>
                 {% for mes in imovel.meses %}
                 <tr>
                     <td><strong>{{ mes.mes_ref|date:"F Y" }}</strong></td>
-                    <td>{{ mes.qtd }} reservas</td>
+                    <td>{{ mes.qtd }}</td>
                     <td class="money" style="color: #2980b9;">R$ {{ mes.media|floatformat:2 }}</td>
                     <td class="money">R$ {{ mes.maior|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" style="color: #999;">Sem locações registradas em {{ ano }}.</td></tr>
+                <tr><td colspan="4" style="color: #999; text-align: center; padding: 10px;">Sem locações.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% endfor %}
+
+    <div id="footerContent">
+        Gerado automaticamente pelo Sistema Gestor Flats • Página <pdf:pagenumber>
+    </div>
 
 </body>
 </html>
