@@ -5,84 +5,26 @@
     <title>Relatório Gerencial</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 30px; background-color: #f0f2f5; color: #333; }
-        
-        /* Navegação de Ano e Botões */
-        .ano-nav { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px; 
-            background: #fff; 
-            padding: 15px 25px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-        }
-        
+        .ano-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .nav-group { display: flex; align-items: center; gap: 15px; }
-
-        .btn-ano { 
-            text-decoration: none; 
-            color: #2c3e50; 
-            font-weight: bold; 
-            padding: 8px 15px; 
-            border-radius: 5px; 
-            background: #e1f0fa; 
-            transition: 0.3s; 
-        }
+        .btn-ano { text-decoration: none; color: #2c3e50; font-weight: bold; padding: 8px 15px; border-radius: 5px; background: #e1f0fa; transition: 0.3s; }
         .btn-ano:hover { background: #3498db; color: white; }
-        
         .ano-atual { font-size: 24px; font-weight: bold; color: #2c3e50; }
-
-        /* BOTÃO PDF (Verde Claro) */
-        .btn-pdf {
-            background-color: #27ae60; 
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .btn-pdf:hover { 
-            background-color: #219150; 
-            transform: translateY(-1px);
-        }
-
-        /* BOTÃO EXCEL (Verde Escuro) */
-        .btn-excel {
-            background-color: #1D6F42; /* Cor clássica do Excel */
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .btn-excel:hover { 
-            background-color: #145231; 
-            transform: translateY(-1px);
-        }
-
-        /* Estilo do Resumo Geral */
+        .btn-pdf { background-color: #27ae60; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-pdf:hover { background-color: #219150; transform: translateY(-1px); }
+        .btn-excel { background-color: #1D6F42; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-excel:hover { background-color: #145231; transform: translateY(-1px); }
         .header-geral { background: #2c3e50; color: white; padding: 25px; border-radius: 10px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .header-geral h1 { margin: 0 0 20px 0; font-size: 22px; border-bottom: 1px solid #4a627a; padding-bottom: 10px; }
         .kpi-container { display: flex; gap: 20px; justify-content: space-between; }
-        .kpi-box { text-align: center; }
-        .kpi-value { font-size: 28px; font-weight: bold; color: #4cd137; }
-        .kpi-label { font-size: 14px; opacity: 0.8; text-transform: uppercase; }
-
+        .kpi-box { text-align: center; flex: 1; }
+        .kpi-value { font-size: 24px; font-weight: bold; color: #4cd137; }
+        .kpi-label { font-size: 12px; opacity: 0.8; text-transform: uppercase; margin-bottom: 5px; }
         .imovel-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
-        .imovel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .imovel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .imovel-title { font-size: 20px; font-weight: bold; color: #2c3e50; }
-        .tag-anual { background: #e1f0fa; color: #2980b9; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        .stats-row { display: flex; gap: 20px; font-size: 14px; color: #555; }
+        .stat-item { background: #f8f9fa; padding: 5px 10px; border-radius: 5px; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #7f8c8d; font-size: 12px; text-transform: uppercase; }
         td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -97,35 +39,33 @@
             <span class="ano-atual">📅 {{ ano }}</span>
             <a href="?ano={{ ano_proximo }}" class="btn-ano">{{ ano_proximo }} ❯</a>
         </div>
-        
         <div style="display: flex; gap: 10px;">
-            <a href="/relatorio/excel/?ano={{ ano }}" class="btn-excel">
-                📊 Baixar Excel
-            </a>
-
-            <a href="/relatorio/pdf/?ano={{ ano }}" class="btn-pdf">
-                📄 Baixar PDF
-            </a>
+            <a href="/relatorio/excel/?ano={{ ano }}" class="btn-excel">📊 Baixar Excel</a>
+            <a href="/relatorio/pdf/?ano={{ ano }}" class="btn-pdf">📄 Baixar PDF</a>
         </div>
     </div>
 
     <div class="header-geral">
-        <h1>Resultados Consolidados de {{ ano }}</h1>
+        <h1>Resultados Consolidados ({{ periodo_dias }} dias considerados)</h1>
         <div class="kpi-container">
             <div class="kpi-box">
-                <div class="kpi-label">Faturamento Total</div>
+                <div class="kpi-label">Faturamento</div>
                 <div class="kpi-value">R$ {{ geral.total_faturado|floatformat:2 }}</div>
             </div>
             <div class="kpi-box">
-                <div class="kpi-label">Dias Ocupados</div>
-                <div class="kpi-value" style="color: white;">{{ geral.dias_ocupados }}</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-label">Total Locações</div>
+                <div class="kpi-label">Locações</div>
                 <div class="kpi-value" style="color: white;">{{ geral.total_locacoes }}</div>
             </div>
             <div class="kpi-box">
-                <div class="kpi-label">Diária Média Geral</div>
+                <div class="kpi-label">Dias Ocupados</div>
+                <div class="kpi-value" style="color: #3498db;">{{ geral.dias_ocupados }}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">Dias Desocupados</div>
+                <div class="kpi-value" style="color: #e74c3c;">{{ geral.dias_desocupados }}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">Ticket Médio</div>
                 <div class="kpi-value" style="color: #f1c40f;">R$ {{ geral.ticket_medio|floatformat:2 }}</div>
             </div>
         </div>
@@ -135,20 +75,17 @@
     <div class="imovel-card">
         <div class="imovel-header">
             <div class="imovel-title">🏢 {{ imovel.nome }}</div>
-            <div class="tag-anual">
-                Acumulado {{ ano }}: R$ {{ imovel.faturamento_total|floatformat:2 }} 
-                <span style="font-weight: normal; color: #666;">({{ imovel.dias_ocupados }} dias)</span>
+            <div class="stats-row">
+                <div class="stat-item">💰 Fat: <strong>R$ {{ imovel.faturamento_total|floatformat:2 }}</strong></div>
+                <div class="stat-item">📅 Ocupados: <strong>{{ imovel.dias_ocupados }}</strong></div>
+                <div class="stat-item" style="color: #c0392b;">🚪 Livres: <strong>{{ imovel.dias_desocupados }}</strong></div>
+                <div class="stat-item">🏷️ Médio: <strong>R$ {{ imovel.ticket_medio|floatformat:2 }}</strong></div>
             </div>
         </div>
 
         <table>
             <thead>
-                <tr>
-                    <th>Mês</th>
-                    <th>Locações</th>
-                    <th>Valor Médio Diária</th>
-                    <th>Maior Diária</th>
-                </tr>
+                <tr><th>Mês</th><th>Locações</th><th>Valor Médio Diária</th><th>Maior Diária</th></tr>
             </thead>
             <tbody>
                 {% for mes in imovel.meses %}
