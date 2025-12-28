@@ -12,6 +12,8 @@ class Imovel(models.Model):
     descricao = models.TextField(blank=True, null=True)
     valor_diaria = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
+    # O NOVO CAMPO ABAIXO:
+    valor_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Valor de Compra/Investimento")
     
     def __str__(self):
         return self.nome
@@ -36,12 +38,6 @@ class Locacao(models.Model):
         verbose_name = "Locação"
         verbose_name_plural = "Locações"
 
-class RelatorioGeral(models.Model):
-    class Meta:
-        managed = False  
-        verbose_name_plural = "Visualizar Relatório Gerencial"
-
-# A CLASSE DESPESA DEVE FICAR FORA DAS OUTRAS (NA MARGEM ESQUERDA)
 class Despesa(models.Model):
     CATEGORIAS = [
         ('CONDOMINIO', 'Condomínio'),
@@ -64,8 +60,8 @@ class Despesa(models.Model):
 
     class Meta:
         verbose_name_plural = "Despesas"
-        class Imovel(models.Model):
-    # ... campos existentes ...
-    valor_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Valor de Compra/Investimento")
-    
-    # Mantenha o restante do código igual
+
+class RelatorioGeral(models.Model):
+    class Meta:
+        managed = False  
+        verbose_name_plural = "Visualizar Relatório Gerencial"
