@@ -6,11 +6,26 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 30px; background-color: #f0f2f5; color: #333; }
         
-        /* Navegação de Ano */
+        /* Navegação de Ano e PDF */
         .ano-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fff; padding: 10px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .btn-ano { text-decoration: none; color: #2c3e50; font-weight: bold; padding: 8px 15px; border-radius: 5px; background: #e1f0fa; transition: 0.3s; }
         .btn-ano:hover { background: #3498db; color: white; }
-        .ano-atual { font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .ano-atual { font-size: 24px; font-weight: bold; color: #2c3e50; margin: 0 15px; }
+
+        /* Botão PDF (Vermelho) */
+        .btn-pdf {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+        .btn-pdf:hover { background-color: #c0392b; }
 
         /* Estilo do Resumo Geral */
         .header-geral { background: #2c3e50; color: white; padding: 25px; border-radius: 10px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -28,14 +43,23 @@
         th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #7f8c8d; font-size: 12px; text-transform: uppercase; }
         td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
         .money { font-family: monospace; font-weight: bold; }
+
+        /* Evita quebra de página no PDF no meio da tabela */
+        tr { page-break-inside: avoid; }
     </style>
 </head>
 <body>
 
     <div class="ano-nav">
-        <a href="?ano={{ ano_anterior }}" class="btn-ano">❮ {{ ano_anterior }}</a>
-        <span class="ano-atual">📅 Ano Referência: {{ ano }}</span>
-        <a href="?ano={{ ano_proximo }}" class="btn-ano">{{ ano_proximo }} ❯</a>
+        <div>
+            <a href="?ano={{ ano_anterior }}" class="btn-ano">❮ {{ ano_anterior }}</a>
+            <span class="ano-atual">📅 {{ ano }}</span>
+            <a href="?ano={{ ano_proximo }}" class="btn-ano">{{ ano_proximo }} ❯</a>
+        </div>
+        
+        <a href="/relatorio/pdf/?ano={{ ano }}" class="btn-pdf">
+            📄 Baixar PDF
+        </a>
     </div>
 
     <div class="header-geral">
@@ -82,18 +106,4 @@
             <tbody>
                 {% for mes in imovel.meses %}
                 <tr>
-                    <td><strong>{{ mes.mes_ref|date:"F Y" }}</strong></td>
-                    <td>{{ mes.qtd }} reservas</td>
-                    <td class="money" style="color: #2980b9;">R$ {{ mes.media|floatformat:2 }}</td>
-                    <td class="money">R$ {{ mes.maior|floatformat:2 }}</td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="4" style="color: #999;">Sem locações registradas em {{ ano }}.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% endfor %}
-
-</body>
-</html>
+                    <td><strong>{{ mes.mes_ref|date:"F
