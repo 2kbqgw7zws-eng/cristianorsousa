@@ -23,7 +23,6 @@ def buscar_dados_relatorio(ano_selecionado):
     dias_corridos_ano = (fim_periodo - inicio_ano).days + 1
     if dias_corridos_ano < 0: dias_corridos_ano = 0
 
-    # Mantemos o filtro por ano apenas para o cálculo do resumo financeiro anual
     locacoes_ano = Locacao.objects.filter(data_entrada__year=ano_selecionado)
     despesas_ano = Despesa.objects.filter(data_pagamento__year=ano_selecionado)
 
@@ -71,7 +70,6 @@ def buscar_dados_relatorio(ano_selecionado):
             'total_locacoes': locs_imovel.count(),
             'ticket_medio': (faturamento / locs_imovel.count()) if locs_imovel.count() > 0 else 0,
             'meses': meses,
-            # ALTERAÇÃO: Pegamos todas as locações do imóvel (incluindo 2026) para o PDF
             'locacoes_detalhadas': Locacao.objects.filter(imovel=imovel).order_by('data_entrada')
         })
 
@@ -111,15 +109,11 @@ def download_relatorio_pdf(request):
     hoje = datetime.date.today()
     try: ano = int(request.GET.get('ano', hoje.year))
     except ValueError: ano = hoje.year
-    
     contexto = buscar_dados_relatorio(ano)
-    
-    # Recalculamos o resumo geral para o PDF considerar TUDO e não só o ano selecionado
     todas_locacoes = Locacao.objects.all()
     contexto['geral']['total_faturado'] = todas_locacoes.aggregate(Sum('valor_cobrado_diaria'))['valor_cobrado_diaria__sum'] or 0
     contexto['geral']['total_locacoes'] = todas_locacoes.count()
     contexto['ano'] = "Geral (Consolidado)"
-
     template = get_template('relatorio_pdf.html')
     html = template.render(contexto)
     response = HttpResponse(content_type='application/pdf')
@@ -128,41 +122,68 @@ def download_relatorio_pdf(request):
     return response
 
 def download_relatorio_excel(request):
-    # ALTERAÇÃO: Busca todas as locações existentes no sistema, sem filtro de ano
     locacoes = Locacao.objects.all().order_by('data_entrada')
-    
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Todas as Locações"
-    
     colunas = ['IMÓVEL', 'CLIENTE', 'CPF', 'TELEFONE', 'DATA ENTRADA', 'DATA SAÍDA']
     ws.append(colunas)
-    
     for cell in ws[1]:
         cell.font = Font(bold=True)
         cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
-
     for loc in locacoes:
-        ws.append([
-            loc.imovel.nome,
-            loc.cliente,
-            loc.cpf,
-            loc.telefone,
-            loc.data_entrada.strftime('%d/%m/%Y'),
-            loc.data_saida.strftime('%d/%m/%Y')
-        ])
-
+        ws.append([loc.imovel.nome, loc.cliente, loc.cpf, loc.telefone, loc.data_entrada.strftime('%d/%m/%Y'), loc.data_saida.strftime('%d/%m/%Y')])
     for col in ws.columns:
         max_length = 0
         column = col[0].column_letter
         for cell in col:
             try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
+                if len(str(cell.value)) > max_length: max_length = len(str(cell.value))
             except: pass
         ws.column_dimensions[column].width = max_length + 2
-
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="Relatorio_Completo_Locacoes.xlsx"'
+    wb.save(response)
+    return response
+
+# --- NOVAS FUNÇÕES PARA DESPESAS ---
+
+def download_despesas_pdf(request):
+    despesas = Despesa.objects.all().order_by('-data_pagamento')
+    total_despesas = despesas.aggregate(Sum('valor'))['valor__sum'] or 0
+    contexto = {
+        'despesas': despesas,
+        'total_geral': total_despesas,
+        'data_emissao': datetime.date.today(),
+    }
+    template = get_template('relatorio_despesas_pdf.html')
+    html = template.render(contexto)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Relatorio_Despesas.pdf"'
+    pisa.CreatePDF(html, dest=response)
+    return response
+
+def download_despesas_excel(request):
+    despesas = Despesa.objects.all().order_by('-data_pagamento')
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Relatório de Despesas"
+    colunas = ['IMÓVEL', 'CATEGORIA', 'DESCRIÇÃO', 'DATA PAGAMENTO', 'VALOR']
+    ws.append(colunas)
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+    for d in despesas:
+        ws.append([d.imovel.nome, d.get_categoria_display(), d.descricao, d.data_pagamento.strftime('%d/%m/%Y'), float(d.valor)])
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length: max_length = len(str(cell.value))
+            except: pass
+        ws.column_dimensions[column].width = max_length + 2
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Relatorio_Despesas.xlsx"'
     wb.save(response)
     return response

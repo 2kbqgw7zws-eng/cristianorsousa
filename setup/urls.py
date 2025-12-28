@@ -1,15 +1,14 @@
 from django.contrib import admin
 from django.urls import path
-from django.views.generic import RedirectView
-# IMPORTANTE: Adicionei download_relatorio_excel aqui
-from imoveis.views import relatorio_geral, download_relatorio_pdf, download_relatorio_excel 
+from imoveis import views # Certifique-se que o import aponta para sua pasta de views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('relatorio/', relatorio_geral, name='relatorio_geral'),
-    path('relatorio/pdf/', download_relatorio_pdf, name='relatorio_pdf'),
-    # NOVA ROTA EXCEL:
-    path('relatorio/excel/', download_relatorio_excel, name='relatorio_excel'),
+    path('relatorio/', views.relatorio_geral, name='relatorio_geral'),
+    path('relatorio/pdf/', views.download_relatorio_pdf, name='relatorio_pdf'),
+    path('relatorio/excel/', views.download_relatorio_excel, name='relatorio_excel'),
     
-    path('', RedirectView.as_view(url='/admin/')), 
+    # ADICIONE ESTAS DUAS LINHAS ABAIXO:
+    path('relatorio/despesas/pdf/', views.download_despesas_pdf, name='download_despesas_pdf'),
+    path('relatorio/despesas/excel/', views.download_despesas_excel, name='download_despesas_excel'),
 ]
