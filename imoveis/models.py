@@ -64,3 +64,8 @@ class Despesa(models.Model):
 
     class Meta:
         verbose_name_plural = "Despesas"
+        class Imovel(models.Model):
+    # ... campos existentes ...
+    valor_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Valor de Compra/Investimento")
+    
+    # Mantenha o restante do código igual

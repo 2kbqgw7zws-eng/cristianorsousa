@@ -29,6 +29,7 @@
         
         .stats-row { display: flex; gap: 15px; font-size: 13px; color: #555; flex-wrap: wrap; }
         .stat-item { background: #f8f9fa; padding: 6px 12px; border-radius: 5px; border: 1px solid #eee; }
+        .stat-roi { background: #e8f4fd; border: 1px solid #3498db; color: #2980b9; } /* Estilo para o ROI */
         
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #7f8c8d; font-size: 12px; text-transform: uppercase; }
@@ -84,6 +85,7 @@
                 <div class="stat-item">💰 Bruto: <strong>R$ {{ imovel.faturamento_total|floatformat:2 }}</strong></div>
                 <div class="stat-item" style="color: #d63031;">💸 Gastos: <strong>R$ {{ imovel.total_despesa|floatformat:2 }}</strong></div>
                 <div class="stat-item" style="color: #27ae60;">📈 Lucro: <strong>R$ {{ imovel.lucro_liquido|floatformat:2 }}</strong></div>
+                <div class="stat-item stat-roi">📊 Rentabilidade: <strong>{{ imovel.porcentagem_lucro|floatformat:2 }}%</strong></div>
                 <div class="stat-item">📅 Ocupados: <strong>{{ imovel.dias_ocupados }}</strong></div>
                 <div class="stat-item">🚪 Livres: <strong>{{ imovel.dias_desocupados }}</strong></div>
             </div>

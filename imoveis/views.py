@@ -49,6 +49,12 @@ def buscar_dados_relatorio(ano_selecionado):
         total_despesa = desps_imovel.aggregate(total=Sum('valor'))['total'] or 0
         lucro_liquido = faturamento - total_despesa
         
+        # CÁLCULO DE RENTABILIDADE (ROI)
+        if imovel.valor_compra and imovel.valor_compra > 0:
+            porcentagem_lucro = (lucro_liquido / imovel.valor_compra) * 100
+        else:
+            porcentagem_lucro = 0
+        
         meses = locs_imovel.annotate(mes_ref=TruncMonth('data_entrada')).values('mes_ref').annotate(
             qtd=Count('id'), total=Sum('valor_cobrado_diaria'),
             media=Avg('valor_cobrado_diaria'), maior=Max('valor_cobrado_diaria')
@@ -59,6 +65,7 @@ def buscar_dados_relatorio(ano_selecionado):
             'faturamento_total': faturamento,
             'total_despesa': total_despesa,
             'lucro_liquido': lucro_liquido,
+            'porcentagem_lucro': porcentagem_lucro, # Novo campo enviado ao HTML
             'dias_ocupados': dias_ocupados,
             'dias_desocupados': max(0, dias_corridos_ano - dias_ocupados),
             'total_locacoes': locs_imovel.count(),
@@ -89,7 +96,6 @@ def buscar_dados_relatorio(ano_selecionado):
         'periodo_dias': dias_corridos_ano
     }
 
-# ESTA É A FUNÇÃO QUE O ERRO DIZ QUE NÃO EXISTE:
 def relatorio_geral(request):
     hoje = datetime.date.today()
     try:
@@ -116,10 +122,23 @@ def download_relatorio_excel(request):
     try: ano = int(request.GET.get('ano', hoje.year))
     except ValueError: ano = hoje.year
     dados = buscar_dados_relatorio(ano)
+    
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = f"Relatorio {ano}"
+    
+    # Cabeçalho simples para evitar erro de variável response
     ws['A1'] = f"RELATÓRIO FINANCEIRO - {ano}"
-    wb.save(response := HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
+    ws['A2'] = "Imóvel"
+    ws['B2'] = "Lucro Líquido"
+    ws['C2'] = "Rentabilidade %"
+    
+    for row, imovel in enumerate(dados['dados_imoveis'], start=3):
+        ws.cell(row=row, column=1, value=imovel['nome'])
+        ws.cell(row=row, column=2, value=imovel['lucro_liquido'])
+        ws.cell(row=row, column=3, value=f"{imovel['porcentagem_lucro']:.2f}%")
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="Relatorio_{ano}.xlsx"'
+    wb.save(response)
     return response
