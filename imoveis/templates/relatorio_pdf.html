@@ -6,40 +6,47 @@
     <style>
         @page { 
             size: a4 portrait; 
-            margin: 1.5cm; 
-            @frame footer_frame { -pdf-frame-content: footerContent; bottom: 1cm; margin-left: 1.5cm; margin-right: 1.5cm; height: 1cm; } 
+            margin: 1cm; /* Margens reduzidas para ganhar espaço lateral */
+            @frame footer_frame { -pdf-frame-content: footerContent; bottom: 0.5cm; margin-left: 1cm; margin-right: 1cm; height: 1cm; } 
         }
-        body { font-family: Helvetica, sans-serif; color: #000; font-size: 9px; line-height: 1.2; }
-        h1 { font-size: 16px; text-transform: uppercase; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 15px; }
+        body { font-family: Helvetica, sans-serif; color: #000; font-size: 8.5px; line-height: 1.1; }
+        h1 { font-size: 15px; text-transform: uppercase; text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 5px; margin-bottom: 12px; }
         
-        .resumo-table { width: 100%; margin-bottom: 20px; border: 1px solid #000; }
-        .resumo-table td { padding: 8px; border: 1px solid #000; text-align: center; }
-        .label { font-size: 8px; text-transform: uppercase; display: block; margin-bottom: 3px; }
-        .value { font-size: 11px; font-weight: bold; }
+        .resumo-table { width: 100%; margin-bottom: 15px; border: 0.5px solid #000; }
+        .resumo-table td { padding: 5px; border: 0.5px solid #000; text-align: center; }
+        .label { font-size: 7px; text-transform: uppercase; display: block; margin-bottom: 2px; }
+        .value { font-size: 10px; font-weight: bold; }
         
-        .imovel-section { margin-bottom: 20px; }
-        .imovel-header { width: 100%; border-bottom: 1px solid #000; margin-bottom: 5px; padding-bottom: 3px; background-color: #eee; }
-        .imovel-nome { font-size: 11px; font-weight: bold; padding-left: 5px; }
+        .imovel-section { margin-bottom: 15px; }
+        .imovel-header { width: 100%; border: 0.5px solid #000; margin-bottom: 0px; padding: 3px; background-color: #f2f2f2; }
+        .imovel-nome { font-size: 10px; font-weight: bold; padding-left: 5px; }
         
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        .data-table th { background-color: #f0f0f0; border: 1px solid #000; padding: 4px; text-align: left; font-weight: bold; font-size: 8px; text-transform: uppercase; }
-        .data-table td { border: 1px solid #000; padding: 4px; vertical-align: middle; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background-color: #eee; border: 0.5px solid #000; padding: 4px 2px; text-align: left; font-weight: bold; font-size: 7.5px; text-transform: uppercase; }
+        .data-table td { border: 0.5px solid #000; padding: 4px 2px; vertical-align: middle; word-wrap: break-word; }
+        
+        /* Ajuste fino das larguras para evitar sobreposição */
+        .col-cliente { width: 22%; }
+        .col-cpf { width: 18%; }
+        .col-tel { width: 18%; }
+        .col-data { width: 14%; }
+        .col-lucro { width: 14%; text-align: right; }
         
         .text-right { text-align: right; }
-        .no-data { text-align: center; font-style: italic; padding: 10px; }
-        #footerContent { text-align: center; font-size: 8px; border-top: 1px solid #000; padding-top: 5px; }
+        .no-data { text-align: center; font-style: italic; padding: 8px; }
+        #footerContent { text-align: center; font-size: 7px; border-top: 0.5px solid #000; padding-top: 3px; }
     </style>
 </head>
 <body>
 
-    <h1>Relatório Detalhado de Locações - {{ ano }}</h1>
+    [cite_start]<h1>Relatório Detalhado de Locações - {{ ano }} [cite: 1]</h1>
 
     <table class="resumo-table">
         <tr>
-            <td><span class="label">Faturamento Geral</span><span class="value">R$ {{ geral.total_faturado|floatformat:2 }}</span></td>
-            <td><span class="label">Total de Locações</span><span class="value">{{ geral.total_locacoes }}</span></td>
-            <td><span class="label">Lucro Líquido</span><span class="value">R$ {{ geral.lucro_liquido|floatformat:2 }}</span></td>
-            <td><span class="label">Dias Ocupados</span><span class="value">{{ geral.dias_ocupados }}</span></td>
+            [cite_start]<td><span class="label">Faturamento Geral [cite: 2][cite_start]</span><span class="value">R$ {{ geral.total_faturado|floatformat:2 }} [cite: 5]</span></td>
+            [cite_start]<td><span class="label">Total de Locações [cite: 3][cite_start]</span><span class="value">{{ geral.total_locacoes }} [cite: 6]</span></td>
+            [cite_start]<td><span class="label">Lucro Líquido [cite: 4][cite_start]</span><span class="value">R$ {{ geral.lucro_liquido|floatformat:2 }} [cite: 7]</span></td>
+            [cite_start]<td><span class="label">Dias Ocupados [cite: 10][cite_start]</span><span class="value">{{ geral.dias_ocupados }} [cite: 11]</span></td>
         </tr>
     </table>
 
@@ -47,19 +54,19 @@
     <div class="imovel-section">
         <table class="imovel-header">
             <tr>
-                <td class="imovel-nome">IMÓVEL: {{ imovel.nome }}</td>
+                [cite_start]<td class="imovel-nome">IMÓVEL: {{ imovel.nome }} [cite: 8, 12]</td>
             </tr>
         </table>
 
         <table class="data-table">
             <thead>
                 <tr>
-                    <th width="25%">Cliente</th>
-                    <th width="20%">CPF</th>
-                    <th width="20%">Telefone</th>
-                    <th width="15%">Entrada</th>
-                    <th width="15%">Saída</th>
-                    <th width="5%" class="text-right">Lucro</th>
+                    [cite_start]<th class="col-cliente">Cliente [cite: 9, 13]</th>
+                    [cite_start]<th class="col-cpf">CPF [cite: 9, 14]</th>
+                    [cite_start]<th class="col-tel">Telefone [cite: 9, 15]</th>
+                    [cite_start]<th class="col-data">Entrada [cite: 9, 16]</th>
+                    [cite_start]<th class="col-data">Saída [cite: 9, 17]</th>
+                    [cite_start]<th class="col-lucro">Lucro [cite: 9, 18]</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,13 +80,15 @@
                     <td class="text-right">R$ {{ loc.valor_cobrado_diaria|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" class="no-data">Sem movimentação para este imóvel.</td></tr>
+                [cite_start]<tr><td colspan="6" class="no-data">Sem movimentação para este imóvel. [cite: 19]</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% endfor %}
 
-    <div id="footerContent">Documento gerado automaticamente pelo Sistema Gestor Flats em {% now "d/m/Y H:i" %} • Página <pdf:pagenumber></div>
+    <div id="footerContent">
+        [cite_start]Documento gerado automaticamente pelo Sistema Gestor Flats em {% now "d/m/Y H:i" %} • Página <pdf:pagenumber> [cite: 20]
+    </div>
 </body>
 </html>
