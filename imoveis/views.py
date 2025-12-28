@@ -1,69 +1,61 @@
 from django.shortcuts import render
-from django.db.models import Avg, Max, Min, Count, Sum
+from django.db.models import Sum, Count, Avg, Max
 from django.db.models.functions import TruncMonth
-from .models import Locacao, Imovel
+from .models import Imovel, Locacao
+import datetime
 
-def relatorio_financeiro(request):
-    # AGORA PEGAMOS TUDO (Removemos o filtro de ano)
-    todas_locacoes = Locacao.objects.all()
+def relatorio_geral(request):
+    # 1. Definição do Período (Ano Atual)
+    hoje = datetime.date.today()
+    ano_atual = hoje.year
     
-    # Cálculo manual do faturamento total geral
-    faturamento_geral = 0
-    dias_ocupados_geral = 0
-    for loc in todas_locacoes:
-        dias = (loc.data_saida - loc.data_entrada).days
-        # Evitar dias negativos ou zero se a pessoa sair no mesmo dia
-        if dias <= 0: dias = 1 
-        faturamento_geral += dias * loc.valor_cobrado_diaria
-        dias_ocupados_geral += dias
+    # 2. Filtrar locações apenas deste ano
+    locacoes_ano = Locacao.objects.filter(
+        data_entrada__year=ano_atual
+    )
 
-    # Evita erro de divisão por zero se não tiver locações
-    ticket_medio = 0
-    if todas_locacoes.count() > 0:
-        ticket_medio = todas_locacoes.aggregate(Avg('valor_cobrado_diaria'))['valor_cobrado_diaria__avg']
+    # 3. Cálculos Gerais (KPIs do Topo)
+    geral = locacoes_ano.aggregate(
+        total_faturado=Sum('valor_cobrado_diaria'),
+        total_locacoes=Count('id'),
+        ticket_medio=Avg('valor_cobrado_diaria'),
+        dias_ocupados=Count('data_entrada') # Aproximação simples
+    )
 
-    resumo_geral = {
-        'total_faturado': faturamento_geral,
-        'dias_ocupados': dias_ocupados_geral,
-        'ticket_medio': ticket_medio,
-        'total_locacoes': todas_locacoes.count()
-    }
-
-    # --- PARTE 2: DADOS POR IMÓVEL ---
-    dados_por_imovel = []
+    # 4. Dados por Imóvel
+    dados_imoveis = []
     imoveis = Imovel.objects.all()
 
     for imovel in imoveis:
-        # Pega todas as locações deste imóvel (sem filtro de ano)
-        locacoes_imovel = Locacao.objects.filter(imovel=imovel)
+        # Pega locações só desse imóvel no ano
+        locs_imovel = locacoes_ano.filter(imovel=imovel)
         
-        if not locacoes_imovel.exists():
-            continue
+        # Totais do imóvel
+        resumo_imovel = locs_imovel.aggregate(
+            fat=Sum('valor_cobrado_diaria'),
+            dias=Count('id')
+        )
 
-        fat_imovel = 0
-        dias_imovel = 0
-        for loc in locacoes_imovel:
-            dias = (loc.data_saida - loc.data_entrada).days
-            if dias <= 0: dias = 1
-            fat_imovel += dias * loc.valor_cobrado_diaria
-            dias_imovel += dias
-
-        meses = locacoes_imovel.annotate(
+        # Agrupamento Mensal (Gráfico/Tabela)
+        meses = locs_imovel.annotate(
             mes_ref=TruncMonth('data_entrada')
         ).values('mes_ref').annotate(
+            qtd=Count('id'),
+            total=Sum('valor_cobrado_diaria'),
             media=Avg('valor_cobrado_diaria'),
-            maior=Max('valor_cobrado_diaria'),
-            qtd=Count('id')
-        ).order_by('-mes_ref') # Ordena do mais recente para o antigo
+            maior=Max('valor_cobrado_diaria')
+        ).order_by('mes_ref')
 
-        dados_por_imovel.append({
+        dados_imoveis.append({
             'nome': imovel.nome,
-            'faturamento_total': fat_imovel,
-            'dias_ocupados': dias_imovel,
+            'faturamento_total': resumo_imovel['fat'] or 0,
+            'dias_ocupados': resumo_imovel['dias'] or 0,
             'meses': meses
         })
 
+    # 5. Enviar para o HTML
     return render(request, 'relatorio.html', {
-        'geral': resumo_geral,
-        'dados_imoveis': dados_por_imovel,
+        'ano': ano_atual,
+        'geral': geral,
+        'dados_imoveis': dados_imoveis
     })
