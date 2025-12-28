@@ -106,4 +106,18 @@
             <tbody>
                 {% for mes in imovel.meses %}
                 <tr>
-                    <td><strong>{{ mes.mes_ref|date:"F
+                    <td><strong>{{ mes.mes_ref|date:"F Y" }}</strong></td>
+                    <td>{{ mes.qtd }} reservas</td>
+                    <td class="money" style="color: #2980b9;">R$ {{ mes.media|floatformat:2 }}</td>
+                    <td class="money">R$ {{ mes.maior|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="color: #999;">Sem locações registradas em {{ ano }}.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+
+</body>
+</html>
