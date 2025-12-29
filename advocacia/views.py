@@ -1,10 +1,10 @@
 def download_advocacia_excel(request):
     hoje = datetime.date.today()
-    ano = int(request.GET.get('ano', hoje.year)) # Filtro de ano corrigido
+    ano = int(request.GET.get('ano', hoje.year))
     
     wb = openpyxl.Workbook()
     
-    # Aba 1: Faturamento
+    # Aba de Faturamento
     ws1 = wb.active
     ws1.title = "Faturamento"
     ws1.append(['DATA', 'CLIENTE', 'VALOR'])
@@ -12,7 +12,7 @@ def download_advocacia_excel(request):
     for f in faturamentos:
         ws1.append([f.data.strftime('%d/%m/%Y'), f.cliente, float(f.valor)])
     
-    # Aba 2: Despesas
+    # Aba de Despesas (Cria uma nova planilha no mesmo arquivo)
     ws2 = wb.create_sheet(title="Despesas")
     ws2.append(['DATA', 'DESCRIÇÃO', 'LOCAL', 'VALOR'])
     despesas = DespesaAdvocacia.objects.filter(data__year=ano)
