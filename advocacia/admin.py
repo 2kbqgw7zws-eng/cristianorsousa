@@ -19,6 +19,9 @@ class FaturamentoAdmin(admin.ModelAdmin):
 
 @admin.register(DespesaAdvocacia)
 class DespesaAdmin(ImportExportModelAdmin):
+    # ESTA LINHA ABAIXO É A CHAVE: Ela diz ao Django exatamente onde procurar o HTML
+    change_list_template = 'admin/advocacia/despesaadvocacia/change_list.html'
+    
     list_display = ('data', 'descricao', 'local', 'valor')
     search_fields = ('descricao', 'local')
     list_filter = ('data',)
