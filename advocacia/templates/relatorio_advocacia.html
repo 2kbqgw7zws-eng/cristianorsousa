@@ -41,9 +41,18 @@
         <div class="consolidado-dark shadow">
             <h6 class="mb-4 text-uppercase border-bottom border-secondary pb-2" style="font-size: 0.7rem; letter-spacing: 1px;">Resultados Consolidados (Advocacia)</h6>
             <div class="row text-center">
-                <div class="col-md-2 metric-box"><p class="metric-label">Faturamento</p><p class="metric-value text-success">R$ {{ faturamento|floatformat:2 }}</p></div>
-                <div class="col-md-2 metric-box"><p class="metric-label">Despesas</p><p class="metric-value text-danger">R$ {{ despesas|floatformat:2 }}</p></div>
-                <div class="col-md-2 metric-box"><p class="metric-label">Lucro Líquido</p><p class="metric-value text-warning">R$ {{ lucro|floatformat:2 }}</p></div>
+                <div class="col-md-2 metric-box">
+                    <p class="metric-label">Faturamento</p>
+                    <p class="metric-value text-success">R$ {{ faturamento|floatformat:2 }}</p>
+                </div>
+                <div class="col-md-2 metric-box">
+                    <p class="metric-label">Despesas</p>
+                    <p class="metric-value text-danger">R$ {{ despesas|floatformat:2 }}</p>
+                </div>
+                <div class="col-md-2 metric-box">
+                    <p class="metric-label">Lucro Líquido</p>
+                    <p class="metric-value text-warning">R$ {{ lucro|floatformat:2 }}</p>
+                </div>
                 <div class="col-md-2 metric-box"><p class="metric-label">Processos</p><p class="metric-value text-info">{{ total_processos }}</p></div>
                 <div class="col-md-2 metric-box"><p class="metric-label">Ativos</p><p class="metric-value">{{ processos_ativos }}</p></div>
                 <div class="col-md-2 metric-box"><p class="metric-label">Baixados</p><p class="metric-value text-secondary">{{ processos_baixados }}</p></div>
@@ -67,9 +76,18 @@
                 </div>
                 <div class="col-md-6">
                     <div class="row text-end">
-                        <div class="col-4"><span class="label-mini">Bruto</span><span class="valor-bold text-success">R$ {{ item.faturamento|floatformat:2 }}</span></div>
-                        <div class="col-4"><span class="label-mini">Gastos</span><span class="valor-bold text-danger">R$ {{ item.despesa|floatformat:2 }}</span></div>
-                        <div class="col-4"><span class="label-mini">Líquido</span><span class="valor-bold text-primary">R$ {{ item.lucro|floatformat:2 }}</span></div>
+                        <div class="col-4">
+                            <span class="label-mini">Bruto</span>
+                            <span class="valor-bold text-success">R$ {{ item.faturamento|floatformat:2 }}</span>
+                        </div>
+                        <div class="col-4">
+                            <span class="label-mini">Gastos</span>
+                            <span class="valor-bold text-danger">R$ {{ item.despesa|floatformat:2 }}</span>
+                        </div>
+                        <div class="col-4">
+                            <span class="label-mini">Líquido</span>
+                            <span class="valor-bold text-primary">R$ {{ item.lucro|floatformat:2 }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
