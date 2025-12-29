@@ -8,35 +8,35 @@
     <style>
         body { background-color: #f4f7f9; padding-bottom: 50px; }
         .header-nav { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin: 20px 0; }
-        .consolidado-dark { background-color: #2c3e50; color: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .consolidado-dark { background-color: #2c3e50; color: white; border-radius: 12px; padding: 25px; margin-bottom: 30px; }
         .metric-box { border-right: 1px solid #455a64; }
         .metric-box:last-child { border-right: none; }
         .metric-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #adb5bd; margin-bottom: 5px; }
-        .metric-value { font-size: 1.2rem; font-weight: bold; margin-bottom: 0; }
+        .metric-value { font-size: 1.4rem; font-weight: bold; margin-bottom: 0; }
         
-        /* Régua de Meses Estilo Imóveis */
-        .regua-meses { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 30px; }
-        .card-mes { 
-            background: white; border-radius: 8px; border-left: 4px solid #007bff; 
-            min-width: 140px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+        /* Layout em Lista Vertical */
+        .card-mes-longo { 
+            background: white; border-radius: 10px; border-left: 5px solid #007bff; 
+            margin-bottom: 15px; padding: 15px 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .mes-nome { font-weight: bold; font-size: 0.9rem; color: #333; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .mes-item { font-size: 0.75rem; display: flex; justify-content: space-between; margin-bottom: 2px; }
-        .val-fatu { color: #28a745; font-weight: bold; }
-        .val-desp { color: #dc3545; font-weight: bold; }
+        .mes-info-principal { font-weight: bold; font-size: 1.1rem; color: #333; min-width: 150px; }
+        .status-badge { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; background: #e3f2fd; color: #007bff; font-weight: bold; }
+        .valores-container { display: flex; gap: 40px; text-align: right; }
+        .valor-label { font-size: 0.65rem; color: #999; text-transform: uppercase; display: block; }
+        .valor-num { font-weight: bold; font-size: 1rem; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-nav d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 align-items-center">
                 <a href="?ano={{ ano_anterior }}" class="btn btn-sm btn-outline-secondary">‹ {{ ano_anterior }}</a>
-                <h5 class="mb-0">📅 {{ ano }}</h5>
-                <a href="?ano={{ ano_proximo }}" class="btn btn-sm btn-outline-secondary">{{ ano_proximo }} ›</a>
+                <h5 class="mb-0 mx-3">📅 {{ ano|stringformat:"d" }}</h5>
+                <a href="?ano={{ ano_proximo }}" class="btn btn-sm btn-outline-secondary">{{ ano_proximo|stringformat:"d" }} ›</a>
             </div>
             <div class="d-flex gap-2">
-                <a href="#" class="btn btn-success btn-sm fw-bold">Baixar Excel</a>
-                <a href="#" class="btn btn-danger btn-sm fw-bold">Baixar PDF</a>
+                <a href="{% url 'download_advocacia_excel' %}?ano={{ ano }}" class="btn btn-success btn-sm fw-bold"><i class="fas fa-file-excel"></i> Baixar Excel</a>
                 <a href="/admin/" class="btn btn-secondary btn-sm">Voltar</a>
             </div>
         </div>
@@ -71,18 +71,31 @@
             </div>
         </div>
 
-        <div class="regua-meses">
-            {% for item in meses_detalhes %}
-            <div class="card-mes">
-                <div class="mes-nome">{{ item.nome }}</div>
-                <div class="mes-item"><span>Fatu:</span> <span class="val-fatu">{{ item.faturamento|floatformat:0 }}</span></div>
-                <div class="mes-item"><span>Gasto:</span> <span class="val-desp">{{ item.despesa|floatformat:0 }}</span></div>
-                <div class="mes-item" style="border-top: 1px solid #f0f0f0; margin-top: 5px; padding-top: 2px;">
-                    <span>Lucro:</span> <span class="fw-bold" style="color: #007bff;">{{ item.lucro|floatformat:0 }}</span>
+        <h5 class="mb-3 text-secondary" style="font-size: 0.9rem;">DETALHAMENTO MENSAL</h5>
+        {% for item in meses_detalhes %}
+        <div class="card-mes-longo">
+            <div>
+                <span class="mes-info-principal">{{ item.nome }}</span>
+                <span class="status-badge ms-2">MOVIMENTADO</span>
+            </div>
+            <div class="valores-container">
+                <div>
+                    <span class="valor-label">Bruto</span>
+                    <span class="valor-num text-success">R$ {{ item.faturamento|floatformat:2 }}</span>
+                </div>
+                <div>
+                    <span class="valor-label">Gastos</span>
+                    <span class="valor-num text-danger">R$ {{ item.despesa|floatformat:2 }}</span>
+                </div>
+                <div>
+                    <span class="valor-label">Líquido</span>
+                    <span class="valor-num text-primary">R$ {{ item.lucro|floatformat:2 }}</span>
                 </div>
             </div>
-            {% endfor %}
         </div>
+        {% empty %}
+        <div class="alert alert-light text-center border">Nenhum dado encontrado para o ano de {{ ano }}.</div>
+        {% endfor %}
     </div>
 </body>
 </html>
