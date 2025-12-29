@@ -1,8 +1,6 @@
-from django.db import db
 from django.db import models
 
 class DespesaAdvocacia(models.Model):
-    # (Mantido como está)
     data = models.DateField()
     descricao = models.CharField(max_length=255)
     local = models.CharField(max_length=255)
