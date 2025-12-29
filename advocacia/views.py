@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
 from .models import FaturamentoAdvocacia, DespesaAdvocacia, ProcessoFaturamento
 import datetime
+from django.http import HttpResponse
 
 def relatorio_advocacia(request):
     ano_str = request.GET.get('ano')
@@ -57,3 +58,10 @@ def relatorio_advocacia(request):
         'meses_detalhes': meses_detalhes,
     }
     return render(request, 'relatorio_advocacia.html', context)
+
+# Funções exigidas pelo urls.py para o site não cair:
+def download_advocacia_pdf(request):
+    return HttpResponse("Download PDF em manutenção.")
+
+def download_advocacia_excel(request):
+    return HttpResponse("Download Excel em manutenção.")
