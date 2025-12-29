@@ -4,3 +4,4 @@ class AdvocaciaConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'advocacia'
     verbose_name = 'ADVOCACIA'
+    
