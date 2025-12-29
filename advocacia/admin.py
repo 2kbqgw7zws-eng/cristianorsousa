@@ -6,16 +6,16 @@ class ProcessoInline(admin.TabularInline):
     model = ProcessoFaturamento
     extra = 1
 
-@admin.register(Faturamento)
+@admin.register(FaturamentoAdvocacia)
 class FaturamentoAdmin(admin.ModelAdmin):
-    # CPF/CNPJ incluído na listagem para facilitar a consulta
     list_display = ('data', 'cliente', 'cpf_cnpj', 'valor')
     search_fields = ('cliente', 'cpf_cnpj')
     inlines = [ProcessoInline]
 
-@admin.register(Despesas)
+@admin.register(DespesaAdvocacia)
 class DespesaAdmin(admin.ModelAdmin):
-    list_display = ('data', 'descricao', 'valor')
+    list_display = ('data', 'descricao', 'local', 'valor')
+    search_fields = ('descricao', 'local')
 
 @admin.register(RelatorioAdvocacia)
 class RelatorioAdmin(admin.ModelAdmin):

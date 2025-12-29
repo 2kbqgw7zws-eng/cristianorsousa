@@ -1,19 +1,27 @@
 from django.db import models
 
-class Despesas(models.Model):
+class DespesaAdvocacia(models.Model):
     data = models.DateField()
     descricao = models.CharField(max_length=255)
     local = models.CharField(max_length=255)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
 
+    class Meta:
+        verbose_name = "Despesa"
+        verbose_name_plural = "Despesas"
+
     def __str__(self):
         return f"{self.data} - {self.descricao}"
 
-class Faturamento(models.Model):
+class FaturamentoAdvocacia(models.Model):
     data = models.DateField()
     cliente = models.CharField("Nome do Cliente", max_length=255)
-    cpf_cnpj = models.CharField("CPF/CNPJ", max_length=20, blank=True, null=True) # Campo restaurado
+    cpf_cnpj = models.CharField("CPF/CNPJ", max_length=20, blank=True, null=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        verbose_name = "Faturamento"
+        verbose_name_plural = "Faturamentos"
 
     def __str__(self):
         return f"{self.cliente} - R$ {self.valor}"
@@ -28,6 +36,10 @@ class ProcessoFaturamento(models.Model):
     numero_processo = models.CharField("Processo", max_length=100)
     competencia = models.CharField("Competência", max_length=100)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='ativo')
+
+    class Meta:
+        verbose_name = "Processo"
+        verbose_name_plural = "Processos"
 
     def __str__(self):
         return self.numero_processo
