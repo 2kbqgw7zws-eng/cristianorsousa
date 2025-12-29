@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import Sum, Count, Q
 from django.db.models.functions import ExtractMonth
 from .models import FaturamentoAdvocacia, DespesaAdvocacia, ProcessoFaturamento
@@ -8,9 +8,15 @@ import pandas as pd
 import io
 
 def relatorio_advocacia(request):
+    # Limpeza do ano para evitar erro de formatação (2.025 -> 2025)
     ano_str = request.GET.get('ano')
     hoje = datetime.date.today()
-    ano = int(ano_str) if ano_str else hoje.year
+    
+    if ano_str:
+        ano_str = ano_str.replace('.', '') # Remove pontos se houver
+        ano = int(ano_str)
+    else:
+        ano = hoje.year
 
     # --- Consolidados Anuais ---
     faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
@@ -31,7 +37,7 @@ def relatorio_advocacia(request):
     fatu_mes = FaturamentoAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     desp_mes = DespesaAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     
-    # IMPORTANTE: Filtramos os processos pela data do faturamento pai
+    # Contagem mensal de processos (usando a relação com faturamento)
     proc_mes = ProcessoFaturamento.objects.filter(faturamento__data__year=ano).annotate(
         m=ExtractMonth('faturamento__data')
     ).values('m').annotate(
@@ -68,11 +74,37 @@ def relatorio_advocacia(request):
         'lucro': lucro_total,
         'total_processos': total_processos_historico,
         'processos_ativos': processos_ativos_total,
-        'processos_baixados': procesos_baixados_total,
+        'processos_baixados': processos_baixados_total,
         'meses_detalhes': meses_detalhes,
         'ano_anterior': ano - 1,
         'ano_proximo': ano + 1,
     }
     return render(request, 'relatorio_advocacia.html', context)
 
-# Mantenha as funções download_advocacia_excel e pdf abaixo...
+def download_advocacia_excel(request):
+    ano_str = request.GET.get('ano')
+    if ano_str:
+        ano = int(ano_str.replace('.', '')) # Limpeza vital aqui também
+    else:
+        ano = datetime.date.today().year
+
+    data_excel = []
+    faturamentos = FaturamentoAdvocacia.objects.filter(data__year=ano)
+    for f in faturamentos:
+        data_excel.append({'Tipo': 'Faturamento', 'Data': f.data, 'Descrição': f.cliente, 'Valor': f.valor})
+    
+    despesas = DespesaAdvocacia.objects.filter(data__year=ano)
+    for d in despesas:
+        data_excel.append({'Tipo': 'Despesa', 'Data': d.data, 'Descrição': d.descricao, 'Valor': d.valor})
+
+    df = pd.DataFrame(data_excel)
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Relatorio')
+    
+    response = HttpResponse(output.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=Relatorio_Advocacia_{ano}.xlsx'
+    return response
+
+def download_advocacia_pdf(request):
+    return HttpResponse("Use Ctrl+P para salvar como PDF.")
