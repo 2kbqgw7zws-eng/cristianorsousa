@@ -6,18 +6,18 @@ from django.template.loader import get_template
 import datetime
 import openpyxl
 
-# Tenta importar o pisa para o PDF (funciona no servidor PythonAnywhere)
+# Tenta importar o pisa para o PDF (essencial para o PythonAnywhere)
 try:
     from xhtml2pdf import pisa
 except ImportError:
     pisa = None
 
 def relatorio_advocacia(request):
-    """Exibe a página do relatório no navegador"""
+    """Exibe a página do relatório no navegador com navegação por anos"""
     hoje = datetime.date.today()
-    # Pega o ano da URL ou usa o ano atual como padrão
     ano_selecionado = int(request.GET.get('ano', hoje.year))
     
+    # Busca os dados filtrados pelo ano
     faturamento_qs = FaturamentoAdvocacia.objects.filter(data__year=ano_selecionado)
     despesas_qs = DespesaAdvocacia.objects.filter(data__year=ano_selecionado)
     
@@ -35,13 +35,14 @@ def relatorio_advocacia(request):
     return render(request, 'relatorio_advocacia.html', contexto)
 
 def download_advocacia_pdf(request):
-    """Gera o arquivo PDF com faturamentos e despesas"""
+    """Gera o arquivo PDF com a listagem detalhada"""
     if pisa is None:
-        return HttpResponse("Erro: Biblioteca xhtml2pdf não encontrada.")
+        return HttpResponse("Erro: Biblioteca xhtml2pdf não encontrada no servidor.")
     
     hoje = datetime.date.today()
     ano = int(request.GET.get('ano', hoje.year))
     
+    # Filtra os dados para o PDF não vir vazio
     faturamentos = FaturamentoAdvocacia.objects.filter(data__year=ano).order_by('data')
     despesas = DespesaAdvocacia.objects.filter(data__year=ano).order_by('data')
     
@@ -63,7 +64,7 @@ def download_advocacia_pdf(request):
     return response
 
 def download_advocacia_excel(request):
-    """Gera o Excel com duas abas: Faturamento e Despesas"""
+    """Gera o Excel com abas separadas para Faturamento e Despesas"""
     hoje = datetime.date.today()
     ano = int(request.GET.get('ano', hoje.year))
     
