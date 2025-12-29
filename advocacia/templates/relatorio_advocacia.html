@@ -26,12 +26,12 @@
     <div class="container">
         <div class="header-nav d-flex justify-content-between align-items-center">
             <div class="d-flex gap-2 align-items-center">
-                <a href="?ano={{ ano_anterior }}" class="btn btn-sm btn-outline-secondary">‹ {{ ano_anterior }}</a>
-                <h5 class="mb-0 mx-3">📅 {{ ano }}</h5>
-                <a href="?ano={{ ano_proximo }}" class="btn btn-sm btn-outline-secondary">{{ ano_proximo }} ›</a>
+                <a href="?ano={{ ano_anterior|stringformat:'d' }}" class="btn btn-sm btn-outline-secondary">‹ {{ ano_anterior|stringformat:"d" }}</a>
+                <h5 class="mb-0 mx-3">📅 {{ ano|stringformat:"d" }}</h5>
+                <a href="?ano={{ ano_proximo|stringformat:'d' }}" class="btn btn-sm btn-outline-secondary">{{ ano_proximo|stringformat:"d" }} ›</a>
             </div>
             <div class="d-flex gap-2">
-                <a href="{% url 'download_advocacia_excel' %}?ano={{ ano }}" class="btn btn-success btn-sm fw-bold"><i class="fas fa-file-excel"></i> Baixar Excel</a>
+                <a href="{% url 'download_advocacia_excel' %}?ano={{ ano|stringformat:'d' }}" class="btn btn-success btn-sm fw-bold"><i class="fas fa-file-excel"></i> Baixar Excel</a>
                 <a href="/admin/" class="btn btn-secondary btn-sm">Voltar</a>
             </div>
         </div>
@@ -93,7 +93,7 @@
             </div>
         </div>
         {% empty %}
-        <div class="alert alert-light text-center border">Nenhum dado para o ano de {{ ano }}.</div>
+        <div class="alert alert-light text-center border">Nenhum dado para o ano de {{ ano|stringformat:"d" }}.</div>
         {% endfor %}
     </div>
 </body>
