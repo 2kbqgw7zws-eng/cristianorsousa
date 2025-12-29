@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Helvetica, sans-serif; }
+        h1 { text-align: center; color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #bdc3c7; padding: 8px; text-align: left; }
+        th { background-color: #ecf0f1; }
+        .total { font-weight: bold; background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>Relatório Financeiro Advocacia - {{ ano }}</h1>
+    <p>Emissão: {{ data_emissao|date:"d/m/Y" }}</p>
+
+    <h3>Faturamentos</h3>
+    <table>
+        <thead><tr><th>Data</th><th>Cliente</th><th>Valor</th></tr></thead>
+        <tbody>
+            {% for f in faturamentos %}
+            <tr><td>{{ f.data|date:"d/m/Y" }}</td><td>{{ f.cliente }}</td><td>R$ {{ f.valor }}</td></tr>
+            {% endfor %}
+            <tr class="total"><td colspan="2">TOTAL FATURADO</td><td>R$ {{ total_f }}</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Despesas</h3>
+    <table>
+        <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead>
+        <tbody>
+            {% for d in despesas %}
+            <tr><td>{{ d.data|date:"d/m/Y" }}</td><td>{{ d.descricao }}</td><td>R$ {{ d.valor }}</td></tr>
+            {% endfor %}
+            <tr class="total"><td colspan="2">TOTAL DESPESAS</td><td>R$ {{ total_d }}</td></tr>
+        </tbody>
+    </table>
+</body>
+</html>
