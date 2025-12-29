@@ -1,22 +1,24 @@
+from django.shortcuts import render, redirect
 from django.db.models import Sum
 from .models import FaturamentoAdvocacia, DespesaAdvocacia, ProcessoFaturamento
 import datetime
+from django.http import HttpResponse
+import pandas as pd
 
 def relatorio_advocacia(request):
-    # Captura o ano da URL ou usa o atual
     ano_str = request.GET.get('ano')
     hoje = datetime.date.today()
     ano = int(ano_str) if ano_str else hoje.year
 
-    # Cálculos Financeiros do Ano
+    # Financeiro
     faturamento = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     despesas = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     lucro = faturamento - despesas
 
-    # Indicadores de Processos (Total histórico e Status)
-    # Nota: Certifique-se de que o campo 'status' existe no seu modelo ProcessoFaturamento
+    # Processos
     processos_qs = ProcessoFaturamento.objects.all()
     total_processos = processos_qs.count()
+    # Filtros baseados no campo status (certifique-se que os nomes coincidem com o banco)
     processos_ativos = processos_qs.filter(status__iexact='Ativo').count()
     processos_baixados = processos_qs.filter(status__iexact='Baixado').count()
 
@@ -32,3 +34,11 @@ def relatorio_advocacia(request):
         'processos_baixados': processos_baixados,
     }
     return render(request, 'relatorio_advocacia.html', context)
+
+def download_advocacia_pdf(request):
+    # Função temporária para evitar erro de URL até você configurar o PDF
+    return HttpResponse("Função PDF em manutenção. O site voltou!")
+
+def download_advocacia_excel(request):
+    # Função temporária para evitar erro de URL até você configurar o Excel
+    return HttpResponse("Função Excel em manutenção. O site voltou!")
