@@ -77,7 +77,6 @@ def relatorio_advocacia(request):
         'ano_anterior': ano - 1,
         'ano_proximo': ano + 1,
     }
-    }
     return render(request, 'relatorio_advocacia.html', context)
 
 def download_advocacia_excel(request):
@@ -87,11 +86,21 @@ def download_advocacia_excel(request):
     data_excel = []
     faturamentos = FaturamentoAdvocacia.objects.filter(data__year=ano)
     for f in faturamentos:
-        data_excel.append({'Tipo': 'Faturamento', 'Data': f.data.strftime('%d/%m/%Y'), 'Descrição': f.cliente, 'Valor': float(f.valor)})
+        data_excel.append({
+            'Tipo': 'Faturamento', 
+            'Data': f.data.strftime('%d/%m/%Y') if f.data else '', 
+            'Descrição': f.cliente, 
+            'Valor': float(f.valor)
+        })
     
     despesas = DespesaAdvocacia.objects.filter(data__year=ano)
     for d in despesas:
-        data_excel.append({'Tipo': 'Despesa', 'Data': d.data.strftime('%d/%m/%Y'), 'Descrição': d.descricao, 'Valor': float(d.valor)})
+        data_excel.append({
+            'Tipo': 'Despesa', 
+            'Data': d.data.strftime('%d/%m/%Y') if d.data else '', 
+            'Descrição': d.descricao, 
+            'Valor': float(d.valor)
+        })
 
     if not data_excel:
         return HttpResponse("Não há dados para exportar neste ano.")
@@ -106,5 +115,4 @@ def download_advocacia_excel(request):
     return response
 
 def download_advocacia_pdf(request):
-    # Solução limpa: abre o relatório e chama a impressão do sistema
     return HttpResponse("<script>window.print(); window.history.back();</script>")
