@@ -126,11 +126,10 @@ def download_advocacia_excel(request):
     return response
 
 def download_advocacia_pdf(request):
-    # Obtém o ano e limpa a formatação
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
     
-    # Busca dados para o template simplificado
+    # Dados para o template simplificado
     faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     
@@ -150,7 +149,6 @@ def download_advocacia_pdf(request):
     proc_dict = {item['m']: item for item in proc_mes}
 
     meses_detalhes = []
-    # Ordenado de Janeiro a Dezembro para o estilo planilha
     for i in range(1, 13):
         f, d = fatu_dict.get(i, 0), desp_dict.get(i, 0)
         p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
@@ -170,5 +168,9 @@ def download_advocacia_pdf(request):
         'processos_baixados': processos_qs.filter(status__iexact='Baixado').count(),
         'meses_detalhes': meses_detalhes,
     }
-    # Renderiza o arquivo novo e simplificado
-    return render(request, 'relatorio_pdf_simplificado.html', context)
+    
+    # IMPORTANTE: Renderizamos e forçamos o cabeçalho para download
+    response = render(request, 'relatorio_pdf_simplificado.html', context)
+    # Mudamos o content_type para garantir que o navegador veja como algo para baixar/imprimir isoladamente
+    response['Content-Disposition'] = f'inline; filename="Relatorio_{ano}.pdf"'
+    return response
