@@ -7,7 +7,7 @@ from import_export import resources
 from .models import DespesaAdvocacia, FaturamentoAdvocacia, RelatorioAdvocacia, ProcessoFaturamento
 import datetime
 
-# --- RESOURCES (Necessário para a Importação/Exportação funcionar) ---
+# --- RESOURCES ---
 
 class DespesaResource(resources.ModelResource):
     class Meta:
@@ -28,7 +28,7 @@ class ProcessoInline(admin.TabularInline):
 # --- CLASSES ADMIN ---
 
 @admin.register(FaturamentoAdvocacia)
-class FaturamentoAdmin(ImportExportModelAdmin): # ImportExportModelAdmin ativa os botões
+class FaturamentoAdmin(ImportExportModelAdmin):
     resource_class = FaturamentoResource
     change_list_template = 'admin/advocacia/faturamentoadvocacia/change_list.html'
     
@@ -39,10 +39,9 @@ class FaturamentoAdmin(ImportExportModelAdmin): # ImportExportModelAdmin ativa o
     inlines = [ProcessoInline]
 
     def has_import_permission(self, request):
-        return True # Garante que o botão Importar apareça
+        return True
 
     def changelist_view(self, request, extra_context=None):
-        # Lógica do resumo mensal (mantida para não quebrar seu layout)
         hoje = datetime.date.today()
         ano_filtrado = request.GET.get('data__year')
         if not ano_filtrado:
@@ -78,7 +77,7 @@ class FaturamentoAdmin(ImportExportModelAdmin): # ImportExportModelAdmin ativa o
         return super().changelist_view(request, extra_context=extra_context)
 
 @admin.register(DespesaAdvocacia)
-class DespesaAdmin(ImportExportModelAdmin): # ImportExportModelAdmin ativa os botões
+class DespesaAdmin(ImportExportModelAdmin):
     resource_class = DespesaResource
     change_list_template = 'admin/advocacia/despesaadvocacia/change_list.html'
     
@@ -88,10 +87,9 @@ class DespesaAdmin(ImportExportModelAdmin): # ImportExportModelAdmin ativa os bo
     list_filter = ('data',)
 
     def has_import_permission(self, request):
-        return True # Garante que o botão Importar apareça
+        return True
 
     def changelist_view(self, request, extra_context=None):
-        # Lógica do resumo mensal (mantida para não quebrar seu layout)
         hoje = datetime.date.today()
         ano_filtrado = request.GET.get('data__year')
         if not ano_filtrado:
@@ -128,7 +126,12 @@ class DespesaAdmin(ImportExportModelAdmin): # ImportExportModelAdmin ativa os bo
 
 @admin.register(RelatorioAdvocacia)
 class RelatorioAdmin(admin.ModelAdmin):
+    # Estas duas linhas abaixo forçam o nome correto no menu lateral
+    RelatorioAdvocacia._meta.verbose_name = "Visualizar Relatório Gerencial"
+    RelatorioAdvocacia._meta.verbose_name_plural = "Visualizar Relatórios Gerencial"
+
     def changelist_view(self, request, extra_context=None):
         return redirect('relatorio_advocacia')
+    
     def has_add_permission(self, request): return False
     def has_delete_permission(self, request, obj=None): return False

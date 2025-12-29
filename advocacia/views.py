@@ -21,9 +21,13 @@ def relatorio_advocacia(request):
     else:
         ano = hoje.year
 
-    faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    lucro_total = faturamento_total - despesas_totais
+    # --- Consolidados Anuais com arredondamento ---
+    fatu_total_raw = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    desp_total_raw = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    
+    faturamento_total = round(float(fatu_total_raw), 2)
+    despesas_totais = round(float(desp_total_raw), 2)
+    lucro_total = round(faturamento_total - despesas_totais, 2)
 
     processos_qs = ProcessoFaturamento.objects.all()
     total_processos_historico = processos_qs.count()
@@ -52,8 +56,8 @@ def relatorio_advocacia(request):
 
     meses_detalhes = []
     for i in range(12, 0, -1):
-        f = fatu_dict.get(i, 0)
-        d = desp_dict.get(i, 0)
+        f = round(float(fatu_dict.get(i, 0)), 2)
+        d = round(float(desp_dict.get(i, 0)), 2)
         p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
         
         if f > 0 or d > 0 or p['total'] > 0:
@@ -61,7 +65,7 @@ def relatorio_advocacia(request):
                 'nome': meses_nomes[i],
                 'faturamento': f,
                 'despesa': d,
-                'lucro': f - d,
+                'lucro': round(f - d, 2),
                 'proc_total': p['total'],
                 'proc_ativos': p['ativos'],
                 'proc_baixados': p['baixados'],
@@ -85,14 +89,17 @@ def download_advocacia_excel(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
 
-    faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    fatu_total_raw = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    desp_total_raw = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    
+    faturamento_total = round(float(fatu_total_raw), 2)
+    despesas_totais = round(float(desp_total_raw), 2)
     
     dados_consolidados = [{
         'Descrição': 'RESULTADOS CONSOLIDADOS ANUAIS',
-        'Bruto Total (R$)': float(faturamento_total),
-        'Gastos Totais (R$)': float(despesas_totais),
-        'Líquido Total (R$)': float(faturamento_total - despesas_totais)
+        'Bruto Total (R$)': faturamento_total,
+        'Gastos Totais (R$)': despesas_totais,
+        'Líquido Total (R$)': round(faturamento_total - despesas_totais, 2)
     }]
 
     meses_nomes = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho',
@@ -110,12 +117,13 @@ def download_advocacia_excel(request):
 
     dados_mensais = []
     for i in range(1, 13):
-        f, d = fatu_dict.get(i, 0), desp_dict.get(i, 0)
+        f = round(float(fatu_dict.get(i, 0)), 2)
+        d = round(float(desp_dict.get(i, 0)), 2)
         p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
         if f > 0 or d > 0 or p['total'] > 0:
             dados_mensais.append({
                 'Mês': meses_nomes[i], 'Processos': p['total'], 'Ativos': p['ativos'], 'Baixados': p['baixados'],
-                'Bruto (R$)': float(f), 'Gastos (R$)': float(d), 'Líquido (R$)': float(f - d)
+                'Bruto (R$)': f, 'Gastos (R$)': d, 'Líquido (R$)': round(f - d, 2)
             })
 
     output = io.BytesIO()
@@ -131,8 +139,13 @@ def download_advocacia_pdf(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
     
-    faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    fatu_total_raw = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    desp_total_raw = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    
+    faturamento_total = round(float(fatu_total_raw), 2)
+    despesas_totais = round(float(desp_total_raw), 2)
+    lucro_total = round(faturamento_total - despesas_totais, 2)
+    
     processos_qs = ProcessoFaturamento.objects.all()
     
     meses_nomes = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho',
@@ -150,11 +163,12 @@ def download_advocacia_pdf(request):
 
     meses_detalhes = []
     for i in range(1, 13):
-        f, d = fatu_dict.get(i, 0), desp_dict.get(i, 0)
+        f = round(float(fatu_dict.get(i, 0)), 2)
+        d = round(float(desp_dict.get(i, 0)), 2)
         p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
         if f > 0 or d > 0 or p['total'] > 0:
             meses_detalhes.append({
-                'nome': meses_nomes[i], 'faturamento': f, 'despesa': d, 'lucro': f - d,
+                'nome': meses_nomes[i], 'faturamento': f, 'despesa': d, 'lucro': round(f - d, 2),
                 'proc_total': p['total'], 'proc_ativos': p['ativos'], 'proc_baixados': p['baixados']
             })
 
@@ -162,22 +176,19 @@ def download_advocacia_pdf(request):
         'ano': ano,
         'faturamento': faturamento_total,
         'despesas': despesas_totais,
-        'lucro': faturamento_total - despesas_totais,
+        'lucro': lucro_total,
         'total_processos': processos_qs.count(),
         'processos_ativos': processos_qs.filter(status__iexact='Ativo').count(),
         'processos_baixados': processos_qs.filter(status__iexact='Baixado').count(),
         'meses_detalhes': meses_detalhes,
     }
     
-    # GERAÇÃO DO PDF BINÁRIO REAL
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Relatorio_Advocacia_{ano}.pdf"'
     
-    # Carrega o template HTML
     template = get_template('relatorio_pdf_simplificado.html')
     html = template.render(context)
     
-    # Converte o HTML em PDF binário
     pisa_status = pisa.CreatePDF(html, dest=response)
     
     if pisa_status.err:
