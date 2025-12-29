@@ -83,7 +83,7 @@ def download_advocacia_excel(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
 
-    # 1. ABA DE RESUMO MENSAL COM CONSOLIDADOS
+    # 1. ABA DE RESUMO GERAL (CONSOLIDADOS)
     faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     
@@ -94,6 +94,7 @@ def download_advocacia_excel(request):
         'Líquido Total (R$)': float(faturamento_total - despesas_totais)
     }]
 
+    # 2. ABA DE RESUMO MENSAL
     meses_nomes = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho',
                    7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'}
     
@@ -127,17 +128,5 @@ def download_advocacia_excel(request):
     return response
 
 def download_advocacia_pdf(request):
-    return HttpResponse("""
-        <script>
-            window.onload = function() {
-                setTimeout(function() {
-                    window.print();
-                    window.location.href = document.referrer;
-                }, 1000);
-            };
-        </script>
-        <div style="text-align:center; font-family:sans-serif; margin-top:50px;">
-            <h2>Preparando relatório para impressão...</h2>
-            <p>Aguarde um momento.</p>
-        </div>
-    """)
+    # Redireciona de volta para o relatório, pois a impressão agora é disparada via JavaScript no template
+    return redirect('relatorio_advocacia')
