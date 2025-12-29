@@ -71,11 +71,12 @@ def relatorio_advocacia(request):
         'despesas': despesas_totais,
         'lucro': lucro_total,
         'total_processos': total_processos_historico,
-        'processos_ativos': procesos_ativos_total,
+        'processos_ativos': processos_ativos_total,
         'processos_baixados': processos_baixados_total,
         'meses_detalhes': meses_detalhes,
         'ano_anterior': ano - 1,
         'ano_proximo': ano + 1,
+    }
     }
     return render(request, 'relatorio_advocacia.html', context)
 
