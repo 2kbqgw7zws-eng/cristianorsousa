@@ -1,6 +1,6 @@
 from django.db import models
 
-class DespesaAdvocacia(models.Model):
+class Despesas(models.Model):
     data = models.DateField()
     descricao = models.CharField(max_length=255)
     local = models.CharField(max_length=255)
@@ -9,9 +9,10 @@ class DespesaAdvocacia(models.Model):
     def __str__(self):
         return f"{self.data} - {self.descricao}"
 
-class FaturamentoAdvocacia(models.Model):
+class Faturamento(models.Model):
     data = models.DateField()
-    cliente = models.CharField(max_length=255)
+    cliente = models.CharField("Nome do Cliente", max_length=255)
+    cpf_cnpj = models.CharField("CPF/CNPJ", max_length=20, blank=True, null=True) # Campo restaurado
     valor = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):

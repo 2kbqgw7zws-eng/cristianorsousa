@@ -2,17 +2,18 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from .models import DespesaAdvocacia, FaturamentoAdvocacia, RelatorioAdvocacia, ProcessoFaturamento
 
-# Configuração para adicionar processos dentro do faturamento
 class ProcessoInline(admin.TabularInline):
     model = ProcessoFaturamento
-    extra = 1  # Quantidade de campos vazios que aparecem por padrão
+    extra = 1
 
-@admin.register(FaturamentoAdvocacia)
+@admin.register(Faturamento)
 class FaturamentoAdmin(admin.ModelAdmin):
-    list_display = ('data', 'cliente', 'valor')
-    inlines = [ProcessoInline] # Ativa a inserção de múltiplos processos
+    # CPF/CNPJ incluído na listagem para facilitar a consulta
+    list_display = ('data', 'cliente', 'cpf_cnpj', 'valor')
+    search_fields = ('cliente', 'cpf_cnpj')
+    inlines = [ProcessoInline]
 
-@admin.register(DespesaAdvocacia)
+@admin.register(Despesas)
 class DespesaAdmin(admin.ModelAdmin):
     list_display = ('data', 'descricao', 'valor')
 
