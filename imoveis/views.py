@@ -7,7 +7,9 @@ import datetime
 import openpyxl
 from openpyxl.styles import Font, PatternFill
 from django.template.loader import get_template
-from xhtml2pdf import pisa
+
+# COMENTADO TEMPORARIAMENTE PARA DESTRAVAR O TERMINAL DO MAC
+# from xhtml2pdf import pisa 
 
 def buscar_dados_relatorio(ano_selecionado):
     hoje = datetime.date.today()
@@ -106,20 +108,22 @@ def relatorio_geral(request):
     return render(request, 'relatorio.html', contexto)
 
 def download_relatorio_pdf(request):
-    hoje = datetime.date.today()
-    try: ano = int(request.GET.get('ano', hoje.year))
-    except ValueError: ano = hoje.year
-    contexto = buscar_dados_relatorio(ano)
-    todas_locacoes = Locacao.objects.all()
-    contexto['geral']['total_faturado'] = todas_locacoes.aggregate(Sum('valor_cobrado_diaria'))['valor_cobrado_diaria__sum'] or 0
-    contexto['geral']['total_locacoes'] = todas_locacoes.count()
-    contexto['ano'] = "Geral (Consolidado)"
-    template = get_template('relatorio_pdf.html')
-    html = template.render(contexto)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Relatorio_Geral_Locacoes.pdf"'
-    pisa.CreatePDF(html, dest=response)
-    return response
+    return HttpResponse("PDF desativado no Mac para permitir migrações.")
+    # Código original comentado:
+    # hoje = datetime.date.today()
+    # try: ano = int(request.GET.get('ano', hoje.year))
+    # except ValueError: ano = hoje.year
+    # contexto = buscar_dados_relatorio(ano)
+    # todas_locacoes = Locacao.objects.all()
+    # contexto['geral']['total_faturado'] = todas_locacoes.aggregate(Sum('valor_cobrado_diaria'))['valor_cobrado_diaria__sum'] or 0
+    # contexto['geral']['total_locacoes'] = todas_locacoes.count()
+    # contexto['ano'] = "Geral (Consolidado)"
+    # template = get_template('relatorio_pdf.html')
+    # html = template.render(contexto)
+    # response = HttpResponse(content_type='application/pdf')
+    # response['Content-Disposition'] = 'attachment; filename="Relatorio_Geral_Locacoes.pdf"'
+    # pisa.CreatePDF(html, dest=response)
+    # return response
 
 def download_relatorio_excel(request):
     locacoes = Locacao.objects.all().order_by('data_entrada')
@@ -146,22 +150,21 @@ def download_relatorio_excel(request):
     wb.save(response)
     return response
 
-# --- NOVAS FUNÇÕES PARA DESPESAS ---
-
 def download_despesas_pdf(request):
-    despesas = Despesa.objects.all().order_by('-data_pagamento')
-    total_despesas = despesas.aggregate(Sum('valor'))['valor__sum'] or 0
-    contexto = {
-        'despesas': despesas,
-        'total_geral': total_despesas,
-        'data_emissao': datetime.date.today(),
-    }
-    template = get_template('relatorio_despesas_pdf.html')
-    html = template.render(contexto)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Relatorio_Despesas.pdf"'
-    pisa.CreatePDF(html, dest=response)
-    return response
+    return HttpResponse("PDF desativado no Mac para permitir migrações.")
+    # despesas = Despesa.objects.all().order_by('-data_pagamento')
+    # total_despesas = despesas.aggregate(Sum('valor'))['valor__sum'] or 0
+    # contexto = {
+    #     'despesas': despesas,
+    #     'total_geral': total_despesas,
+    #     'data_emissao': datetime.date.today(),
+    # }
+    # template = get_template('relatorio_despesas_pdf.html')
+    # html = template.render(contexto)
+    # response = HttpResponse(content_type='application/pdf')
+    # response['Content-Disposition'] = 'attachment; filename="Relatorio_Despesas.pdf"'
+    # pisa.CreatePDF(html, dest=response)
+    # return response
 
 def download_despesas_excel(request):
     despesas = Despesa.objects.all().order_by('-data_pagamento')
