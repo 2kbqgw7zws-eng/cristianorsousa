@@ -13,6 +13,7 @@ class FaturamentoAdmin(admin.ModelAdmin):
 @admin.register(RelatorioAdvocacia)
 class RelatorioAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
+        # O nome 'relatorio_advocacia' deve ser o mesmo definido no urls.py
         return redirect('relatorio_advocacia')
     
     def has_add_permission(self, request): return False
