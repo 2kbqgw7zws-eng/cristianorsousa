@@ -14,24 +14,19 @@
         .metric-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #adb5bd; margin-bottom: 5px; }
         .metric-value { font-size: 1.4rem; font-weight: bold; margin-bottom: 0; }
         
-        .card-mes-horizontal { 
-            background: white; border-radius: 10px; border-left: 5px solid #007bff; 
-            margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-        }
+        .card-mes-horizontal { background: white; border-radius: 10px; border-left: 5px solid #007bff; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
         .label-mini { font-size: 0.6rem; color: #999; text-transform: uppercase; font-weight: 800; display: block; }
         .valor-bold { font-weight: bold; font-size: 1rem; color: #333; }
 
         @media print {
-            @page { size: A4 landscape; margin: 1cm; }
+            @page { size: A4 landscape; margin: 0.5cm; }
             .header-nav, .btn, .no-print { display: none !important; }
             body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .consolidado-dark { background-color: #2c3e50 !important; color: white !important; border: 1px solid #2c3e50; }
+            .consolidado-dark { background-color: #2c3e50 !important; color: white !important; margin-top: 0 !important; }
             .card-mes-horizontal { border: 1px solid #dee2e6 !important; border-left: 5px solid #007bff !important; page-break-inside: avoid; }
             .text-success { color: #28a745 !important; }
             .text-danger { color: #dc3545 !important; }
             .text-primary { color: #007bff !important; }
-            .text-warning { color: #ffc107 !important; }
-            .col-md-2, .col-md-4, .col-md-6 { float: left !important; }
             .row { display: flex !important; flex-wrap: nowrap !important; }
         }
     </style>
@@ -71,38 +66,18 @@
                 <div class="col-md-2">
                     <h5 class="mb-0 fw-bold" style="color: #333;">{{ item.nome }}</h5>
                 </div>
-                
                 <div class="col-md-4 border-end border-start">
                     <div class="row text-center">
-                        <div class="col-4">
-                            <span class="label-mini">Processos</span>
-                            <span class="valor-bold">{{ item.proc_total }}</span>
-                        </div>
-                        <div class="col-4">
-                            <span class="label-mini">Ativos</span>
-                            <span class="valor-bold text-primary">{{ item.proc_ativos }}</span>
-                        </div>
-                        <div class="col-4">
-                            <span class="label-mini">Baixados</span>
-                            <span class="valor-bold text-secondary">{{ item.proc_baixados }}</span>
-                        </div>
+                        <div class="col-4"><span class="label-mini">Processos</span><span class="valor-bold">{{ item.proc_total }}</span></div>
+                        <div class="col-4"><span class="label-mini">Ativos</span><span class="valor-bold text-primary">{{ item.proc_ativos }}</span></div>
+                        <div class="col-4"><span class="label-mini">Baixados</span><span class="valor-bold text-secondary">{{ item.proc_baixados }}</span></div>
                     </div>
                 </div>
-
                 <div class="col-md-6">
                     <div class="row text-end">
-                        <div class="col-4">
-                            <span class="label-mini">Bruto</span>
-                            <span class="valor-bold text-success">R$ {{ item.faturamento|floatformat:2 }}</span>
-                        </div>
-                        <div class="col-4">
-                            <span class="label-mini">Gastos</span>
-                            <span class="valor-bold text-danger">R$ {{ item.despesa|floatformat:2 }}</span>
-                        </div>
-                        <div class="col-4">
-                            <span class="label-mini">Líquido</span>
-                            <span class="valor-bold text-primary">R$ {{ item.lucro|floatformat:2 }}</span>
-                        </div>
+                        <div class="col-4"><span class="label-mini">Bruto</span><span class="valor-bold text-success">R$ {{ item.faturamento|floatformat:2 }}</span></div>
+                        <div class="col-4"><span class="label-mini">Gastos</span><span class="valor-bold text-danger">R$ {{ item.despesa|floatformat:2 }}</span></div>
+                        <div class="col-4"><span class="label-mini">Líquido</span><span class="valor-bold text-primary">R$ {{ item.lucro|floatformat:2 }}</span></div>
                     </div>
                 </div>
             </div>

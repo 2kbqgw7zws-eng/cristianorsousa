@@ -8,7 +8,6 @@ import pandas as pd
 import io
 
 def relatorio_advocacia(request):
-    # Limpeza do ano para evitar erro de formatação (ex: 2.025 -> 2025)
     ano_str = request.GET.get('ano')
     hoje = datetime.date.today()
     
@@ -84,25 +83,20 @@ def download_advocacia_excel(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
 
-    # 1. Resultados Consolidados
+    # 1. ABA DE RESUMO MENSAL COM CONSOLIDADOS
     faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    lucro_total = faturamento_total - despesas_totais
     
-    processos_qs = ProcessoFaturamento.objects.all()
-    proc_ativos = processos_qs.filter(status__iexact='Ativo').count()
-    proc_baixados = processos_qs.filter(status__iexact='Baixado').count()
+    dados_consolidados = [{
+        'Descrição': 'RESULTADOS CONSOLIDADOS ANUAIS',
+        'Bruto Total (R$)': float(faturamento_total),
+        'Gastos Totais (R$)': float(despesas_totais),
+        'Líquido Total (R$)': float(faturamento_total - despesas_totais)
+    }]
 
-    dados_consolidados = pd.DataFrame([{
-        'Descrição': f'RESULTADOS CONSOLIDADOS - {ano}',
-        'Faturamento Total (R$)': float(faturamento_total),
-        'Despesas Totais (R$)': float(despesas_totais),
-        'Lucro Líquido (R$)': float(lucro_total),
-        'Processos Ativos': proc_ativos,
-        'Processos Baixados': proc_baixados
-    }])
-
-    # 2. Detalhamento Mensal
+    meses_nomes = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho',
+                   7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'}
+    
     fatu_mes = FaturamentoAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     desp_mes = DespesaAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     proc_mes = ProcessoFaturamento.objects.filter(faturamento__data__year=ano).annotate(m=ExtractMonth('faturamento__data')).values('m').annotate(
@@ -112,7 +106,6 @@ def download_advocacia_excel(request):
     fatu_dict = {item['m']: item['total'] for item in fatu_mes}
     desp_dict = {item['m']: item['total'] for item in desp_mes}
     proc_dict = {item['m']: item for item in proc_mes}
-    meses_nomes = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho', 7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'}
 
     dados_mensais = []
     for i in range(1, 13):
@@ -120,27 +113,20 @@ def download_advocacia_excel(request):
         p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
         if f > 0 or d > 0 or p['total'] > 0:
             dados_mensais.append({
-                'Mês': meses_nomes[i], 
-                'Processos': p['total'], 
-                'Ativos': p['ativos'], 
-                'Baixados': p['baixados'], 
-                'Bruto (R$)': float(f), 
-                'Gastos (R$)': float(d), 
-                'Líquido (R$)': float(f - d)
+                'Mês': meses_nomes[i], 'Processos': p['total'], 'Ativos': p['ativos'], 'Baixados': p['baixados'],
+                'Bruto (R$)': float(f), 'Gastos (R$)': float(d), 'Líquido (R$)': float(f - d)
             })
 
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        dados_consolidados.to_excel(writer, index=False, sheet_name='Consolidado Anual')
-        if dados_mensais:
-            pd.DataFrame(dados_mensais).to_excel(writer, index=False, sheet_name='Resumo Mensal')
-    
+        pd.DataFrame(dados_consolidados).to_excel(writer, index=False, sheet_name='Consolidado Geral')
+        pd.DataFrame(dados_mensais).to_excel(writer, index=False, sheet_name='Resumo Mensal')
+
     response = HttpResponse(output.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename=Relatorio_Advocacia_{ano}.xlsx'
     return response
 
 def download_advocacia_pdf(request):
-    # Script para abrir o diálogo de impressão após o carregamento da página
     return HttpResponse("""
         <script>
             window.onload = function() {
@@ -150,7 +136,8 @@ def download_advocacia_pdf(request):
                 }, 1000);
             };
         </script>
-        <p style='text-align:center; font-family:sans-serif; margin-top:50px;'>
-            Preparando relatório para impressão...
-        </p>
+        <div style="text-align:center; font-family:sans-serif; margin-top:50px;">
+            <h2>Preparando relatório para impressão...</h2>
+            <p>Aguarde um momento.</p>
+        </div>
     """)
