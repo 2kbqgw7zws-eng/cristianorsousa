@@ -8,7 +8,6 @@ import pandas as pd
 import io
 
 def relatorio_advocacia(request):
-    # Limpeza do ano para evitar erro de formatação (ex: 2.025 -> 2025)
     ano_str = request.GET.get('ano')
     hoje = datetime.date.today()
     
@@ -50,21 +49,21 @@ def relatorio_advocacia(request):
     proc_dict = {item['m']: item for item in proc_mes}
 
     meses_detalhes = []
-    # Loop de Janeiro a Dezembro para o layout estilo planilha
-    for i in range(1, 13):
+    for i in range(12, 0, -1):
         f = fatu_dict.get(i, 0)
         d = desp_dict.get(i, 0)
         p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
         
-        meses_detalhes.append({
-            'nome': meses_nomes[i],
-            'faturamento': f,
-            'despesa': d,
-            'lucro': f - d,
-            'proc_total': p['total'],
-            'proc_ativos': p['ativos'],
-            'proc_baixados': p['baixados'],
-        })
+        if f > 0 or d > 0 or p['total'] > 0:
+            meses_detalhes.append({
+                'nome': meses_nomes[i],
+                'faturamento': f,
+                'despesa': d,
+                'lucro': f - d,
+                'proc_total': p['total'],
+                'proc_ativos': p['ativos'],
+                'proc_baixados': p['baixados'],
+            })
 
     context = {
         'ano': ano,
@@ -88,10 +87,10 @@ def download_advocacia_excel(request):
     despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     
     dados_consolidados = [{
-        'Descrição': f'RESULTADOS CONSOLIDADOS - {ano}',
-        'Faturamento Total (R$)': float(faturamento_total),
-        'Despesas Totais (R$)': float(despesas_totais),
-        'Lucro Líquido (R$)': float(faturamento_total - despesas_totais)
+        'Descrição': 'RESULTADOS CONSOLIDADOS ANUAIS',
+        'Bruto Total (R$)': float(faturamento_total),
+        'Gastos Totais (R$)': float(despesas_totais),
+        'Líquido Total (R$)': float(faturamento_total - despesas_totais)
     }]
 
     meses_nomes = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho',
@@ -111,10 +110,11 @@ def download_advocacia_excel(request):
     for i in range(1, 13):
         f, d = fatu_dict.get(i, 0), desp_dict.get(i, 0)
         p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
-        dados_mensais.append({
-            'Mês': meses_nomes[i], 'Processos': p['total'], 'Ativos': p['ativos'], 'Baixados': p['baixados'],
-            'Bruto (R$)': float(f), 'Gastos (R$)': float(d), 'Líquido (R$)': float(f - d)
-        })
+        if f > 0 or d > 0 or p['total'] > 0:
+            dados_mensais.append({
+                'Mês': meses_nomes[i], 'Processos': p['total'], 'Ativos': p['ativos'], 'Baixados': p['baixados'],
+                'Bruto (R$)': float(f), 'Gastos (R$)': float(d), 'Líquido (R$)': float(f - d)
+            })
 
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -126,5 +126,4 @@ def download_advocacia_excel(request):
     return response
 
 def download_advocacia_pdf(request):
-    # Agora redireciona para a mesma página com um parâmetro de impressão automático
     return redirect(f"/advocacia/relatorio/?ano={request.GET.get('ano', '')}&print=1")
