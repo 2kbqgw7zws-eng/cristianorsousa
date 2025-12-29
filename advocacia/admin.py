@@ -23,27 +23,28 @@ class DespesaAdmin(ImportExportModelAdmin):
     
     list_display = ('data', 'descricao', 'local', 'valor')
     search_fields = ('descricao', 'local')
+    # O list_filter abaixo gera a barra lateral para trocar de ano
     list_filter = ('data',)
 
     def has_import_permission(self, request):
         return False
 
     def changelist_view(self, request, extra_context=None):
-        # 1. Identifica o ano filtrado. Se não houver filtro, usa o ano atual.
         hoje = datetime.date.today()
+        
+        # Pega o ano da URL (filtro lateral). Se não tiver, usa o ano atual.
+        query_params = request.GET
         ano_filtrado = hoje.year
         
-        # Tenta pegar o ano do filtro da barra lateral (URL)
-        # O Django Admin costuma passar filtros de data via GET
-        data_year = request.GET.get('data__year')
-        data_gte = request.GET.get('data__gte') # Caso seja um range
-        
-        if data_year:
-            ano_filtrado = int(data_year)
-        elif data_gte and len(data_gte) >= 4:
-            ano_filtrado = int(data_gte[:4])
+        for key, value in query_params.items():
+            if 'data__year' in key:
+                ano_filtrado = int(value)
+                break
+            elif 'data__gte' in key: # Filtro de "Este ano" ou "Ano passado"
+                ano_filtrado = int(value[:4])
+                break
 
-        # 2. Agrupa gastos por mês do ano selecionado (dinâmico)
+        # Agrupa gastos por mês do ano selecionado
         resumo_mensal = (
             DespesaAdvocacia.objects.filter(data__year=ano_filtrado)
             .annotate(mes=ExtractMonth('data'))
@@ -70,7 +71,7 @@ class DespesaAdmin(ImportExportModelAdmin):
         extra_context = extra_context or {}
         extra_context['resumo_financeiro'] = dados_resumo
         extra_context['total_geral_ano'] = total_geral
-        extra_context['ano_exibido'] = ano_filtrado # Passa para o HTML saber qual ano mostrar
+        extra_context['ano_exibido'] = ano_filtrado
         
         return super().changelist_view(request, extra_context=extra_context)
 
