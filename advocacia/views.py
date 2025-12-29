@@ -84,7 +84,7 @@ def download_advocacia_excel(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
 
-    # 1. Obter os Resultados Consolidados
+    # 1. Resultados Consolidados
     faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     lucro_total = faturamento_total - despesas_totais
@@ -102,7 +102,7 @@ def download_advocacia_excel(request):
         'Processos Baixados': proc_baixados
     }])
 
-    # 2. Obter o Detalhamento Mensal
+    # 2. Detalhamento Mensal
     fatu_mes = FaturamentoAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     desp_mes = DespesaAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     proc_mes = ProcessoFaturamento.objects.filter(faturamento__data__year=ano).annotate(m=ExtractMonth('faturamento__data')).values('m').annotate(
@@ -131,9 +131,7 @@ def download_advocacia_excel(request):
 
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        # Cria aba de Consolidados
         dados_consolidados.to_excel(writer, index=False, sheet_name='Consolidado Anual')
-        # Cria aba de Detalhamento
         if dados_mensais:
             pd.DataFrame(dados_mensais).to_excel(writer, index=False, sheet_name='Resumo Mensal')
     
@@ -142,5 +140,17 @@ def download_advocacia_excel(request):
     return response
 
 def download_advocacia_pdf(request):
-    # Adicionamos um pequeno atraso (500ms) para garantir que o CSS seja carregado antes do print
-    return HttpResponse("<script>setTimeout(function(){ window.print(); window.history.back(); }, 500);</script>")
+    # Script para abrir o diálogo de impressão após o carregamento da página
+    return HttpResponse("""
+        <script>
+            window.onload = function() {
+                setTimeout(function() {
+                    window.print();
+                    window.location.href = document.referrer;
+                }, 1000);
+            };
+        </script>
+        <p style='text-align:center; font-family:sans-serif; margin-top:50px;'>
+            Preparando relatório para impressão...
+        </p>
+    """)
