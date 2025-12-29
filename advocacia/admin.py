@@ -15,12 +15,10 @@ class FaturamentoAdmin(admin.ModelAdmin):
 @admin.register(DespesaAdvocacia)
 class DespesaAdmin(admin.ModelAdmin):
     list_display = ('data', 'descricao', 'local', 'valor')
-    search_fields = ('descricao', 'local')
 
 @admin.register(RelatorioAdvocacia)
 class RelatorioAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         return redirect('relatorio_advocacia')
-    
     def has_add_permission(self, request): return False
     def has_delete_permission(self, request, obj=None): return False

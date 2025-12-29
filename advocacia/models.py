@@ -27,11 +27,7 @@ class FaturamentoAdvocacia(models.Model):
         return f"{self.cliente} - R$ {self.valor}"
 
 class ProcessoFaturamento(models.Model):
-    STATUS_CHOICES = [
-        ('ativo', 'Ativo'),
-        ('baixado', 'Baixado'),
-    ]
-    
+    STATUS_CHOICES = [('ativo', 'Ativo'), ('baixado', 'Baixado')]
     faturamento = models.ForeignKey(FaturamentoAdvocacia, on_delete=models.CASCADE, related_name='processos')
     numero_processo = models.CharField("Processo", max_length=100)
     competencia = models.CharField("Competência", max_length=100)
