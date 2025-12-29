@@ -1,6 +1,3 @@
-"""
-URL configuration for setup project.
-"""
 from django.contrib import admin
 from django.urls import path
 from imoveis import views as imoveis_views
@@ -16,7 +13,7 @@ urlpatterns = [
     path('despesas/pdf/', imoveis_views.download_despesas_pdf, name='download_despesas_pdf'),
     path('despesas/excel/', imoveis_views.download_despesas_excel, name='download_despesas_excel'),
 
-    # --- ROTAS DE ADVOCACIA (Nova Seção) ---
+    # --- ROTAS DE ADVOCACIA ---
     path('admin/advocacia/relatorio/', advocacia_views.relatorio_advocacia, name='relatorio_advocacia'),
     path('admin/advocacia/relatorio/pdf/', advocacia_views.download_advocacia_pdf, name='download_advocacia_pdf'),
     path('admin/advocacia/relatorio/excel/', advocacia_views.download_advocacia_excel, name='download_advocacia_excel'),
