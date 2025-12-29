@@ -1,26 +1,37 @@
+from django.db import db
 from django.db import models
 
 class DespesaAdvocacia(models.Model):
-    TIPO_CHOICES = (('C', 'Custeio'), ('I', 'Investimento'))
+    # (Mantido como está)
     data = models.DateField()
-    descricao = models.CharField(max_length=200, verbose_name="Descrição")
-    local = models.CharField(max_length=100, verbose_name="Local")
+    descricao = models.CharField(max_length=255)
+    local = models.CharField(max_length=255)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
-    tipo = models.CharField(max_length=1, choices=TIPO_CHOICES, default='C')
 
-    class Meta:
-        verbose_name = "Despesa"
-        verbose_name_plural = "Despesas"
+    def __str__(self):
+        return f"{self.data} - {self.descricao}"
 
 class FaturamentoAdvocacia(models.Model):
     data = models.DateField()
-    cliente = models.CharField(max_length=150)
-    documento = models.CharField(max_length=20, verbose_name="CPF/CNPJ")
+    cliente = models.CharField(max_length=255)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
 
-    class Meta:
-        verbose_name = "Faturamento"
-        verbose_name_plural = "Faturamentos"
+    def __str__(self):
+        return f"{self.cliente} - R$ {self.valor}"
+
+class ProcessoFaturamento(models.Model):
+    STATUS_CHOICES = [
+        ('ativo', 'Ativo'),
+        ('baixado', 'Baixado'),
+    ]
+    
+    faturamento = models.ForeignKey(FaturamentoAdvocacia, on_delete=models.CASCADE, related_name='processos')
+    numero_processo = models.CharField("Processo", max_length=100)
+    competencia = models.CharField("Competência", max_length=100)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='ativo')
+
+    def __str__(self):
+        return self.numero_processo
 
 class RelatorioAdvocacia(models.Model):
     class Meta:
