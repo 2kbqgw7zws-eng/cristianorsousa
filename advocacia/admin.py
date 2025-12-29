@@ -23,7 +23,11 @@ class DespesaAdmin(ImportExportModelAdmin):
     
     list_display = ('data', 'descricao', 'local', 'valor')
     search_fields = ('descricao', 'local')
-    # O list_filter abaixo gera a barra lateral para trocar de ano
+    
+    # ATIVA A BARRA DE NAVEGAÇÃO POR DATA NO TOPO
+    date_hierarchy = 'data' 
+    
+    # MANTÉM O FILTRO LATERAL
     list_filter = ('data',)
 
     def has_import_permission(self, request):
@@ -32,17 +36,19 @@ class DespesaAdmin(ImportExportModelAdmin):
     def changelist_view(self, request, extra_context=None):
         hoje = datetime.date.today()
         
-        # Pega o ano da URL (filtro lateral). Se não tiver, usa o ano atual.
-        query_params = request.GET
-        ano_filtrado = hoje.year
+        # Pega o ano da hierarquia de datas ou do filtro lateral
+        # O Django usa 'data__year' na URL quando você clica na hierarquia
+        ano_filtrado = request.GET.get('data__year')
         
-        for key, value in query_params.items():
-            if 'data__year' in key:
-                ano_filtrado = int(value)
-                break
-            elif 'data__gte' in key: # Filtro de "Este ano" ou "Ano passado"
-                ano_filtrado = int(value[:4])
-                break
+        if not ano_filtrado:
+            # Tenta pegar de outros formatos de filtro de data
+            data_gte = request.GET.get('data__gte')
+            if data_gte:
+                ano_filtrado = data_gte[:4]
+            else:
+                ano_filtrado = hoje.year
+        
+        ano_filtrado = int(ano_filtrado)
 
         # Agrupa gastos por mês do ano selecionado
         resumo_mensal = (
