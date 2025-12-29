@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .header { font-size: 14px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #000; }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">RELATÓRIO CONSOLIDADO ANUAL - ANO {{ ano }}</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Faturamento</th><th>Despesas</th><th>Lucro Líquido</th>
+                <th>Processos</th><th>Ativos</th><th>Baixados</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>R$ {{ faturamento|floatformat:2 }}</td>
+                <td>R$ {{ despesas|floatformat:2 }}</td>
+                <td>R$ {{ lucro|floatformat:2 }}</td>
+                <td>{{ total_processos }}</td>
+                <td>{{ processos_ativos }}</td>
+                <td>{{ processos_baixados }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="header">DETALHAMENTO MENSAL</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Mês</th><th>Processos</th><th>Ativos</th><th>Baixados</th>
+                <th>Bruto (R$)</th><th>Gastos (R$)</th><th>Líquido (R$)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in meses_detalhes %}
+            <tr>
+                <td>{{ item.nome }}</td>
+                <td>{{ item.proc_total }}</td><td>{{ item.proc_ativos }}</td><td>{{ item.proc_baixados }}</td>
+                <td>{{ item.faturamento|floatformat:2 }}</td>
+                <td>{{ item.despesa|floatformat:2 }}</td>
+                <td>{{ item.lucro|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

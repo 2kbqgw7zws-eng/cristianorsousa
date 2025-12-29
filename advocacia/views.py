@@ -126,4 +126,49 @@ def download_advocacia_excel(request):
     return response
 
 def download_advocacia_pdf(request):
-    return redirect(f"/advocacia/relatorio/?ano={request.GET.get('ano', '')}&print=1")
+    # Obtém o ano e limpa a formatação
+    ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
+    ano = int(ano_str)
+    
+    # Busca dados para o template simplificado
+    faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    
+    processos_qs = ProcessoFaturamento.objects.all()
+    
+    meses_nomes = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho',
+                   7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'}
+    
+    fatu_mes = FaturamentoAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
+    desp_mes = DespesaAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
+    proc_mes = ProcessoFaturamento.objects.filter(faturamento__data__year=ano).annotate(m=ExtractMonth('faturamento__data')).values('m').annotate(
+        total=Count('id'), ativos=Count('id', filter=Q(status__iexact='Ativo')), baixados=Count('id', filter=Q(status__iexact='Baixado'))
+    )
+
+    fatu_dict = {item['m']: item['total'] for item in fatu_mes}
+    desp_dict = {item['m']: item['total'] for item in desp_mes}
+    proc_dict = {item['m']: item for item in proc_mes}
+
+    meses_detalhes = []
+    # Ordenado de Janeiro a Dezembro para o estilo planilha
+    for i in range(1, 13):
+        f, d = fatu_dict.get(i, 0), desp_dict.get(i, 0)
+        p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
+        if f > 0 or d > 0 or p['total'] > 0:
+            meses_detalhes.append({
+                'nome': meses_nomes[i], 'faturamento': f, 'despesa': d, 'lucro': f - d,
+                'proc_total': p['total'], 'proc_ativos': p['ativos'], 'proc_baixados': p['baixados']
+            })
+
+    context = {
+        'ano': ano,
+        'faturamento': faturamento_total,
+        'despesas': despesas_totais,
+        'lucro': faturamento_total - despesas_totais,
+        'total_processos': processos_qs.count(),
+        'processos_ativos': processos_qs.filter(status__iexact='Ativo').count(),
+        'processos_baixados': processos_qs.filter(status__iexact='Baixado').count(),
+        'meses_detalhes': meses_detalhes,
+    }
+    # Renderiza o arquivo novo e simplificado
+    return render(request, 'relatorio_pdf_simplificado.html', context)
