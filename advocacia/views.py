@@ -36,6 +36,7 @@ def relatorio_advocacia(request):
     fatu_mes = FaturamentoAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     desp_mes = DespesaAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     
+    # Contagem mensal baseada no faturamento
     proc_mes = ProcessoFaturamento.objects.filter(faturamento__data__year=ano).annotate(
         m=ExtractMonth('faturamento__data')
     ).values('m').annotate(
@@ -83,36 +84,38 @@ def download_advocacia_excel(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
 
-    data_excel = []
+    # Dados de Faturamento
     faturamentos = FaturamentoAdvocacia.objects.filter(data__year=ano)
-    for f in faturamentos:
-        data_excel.append({
-            'Tipo': 'Faturamento', 
-            'Data': f.data.strftime('%d/%m/%Y') if f.data else '', 
-            'Descrição': f.cliente, 
-            'Valor': float(f.valor)
-        })
+    df_fatu = pd.DataFrame([{
+        'Data': f.data.strftime('%d/%m/%Y'),
+        'Cliente': f.cliente,
+        'CPF/CNPJ': f.cpf_cnpj,
+        'Valor (R$)': float(f.valor)
+    } for f in faturamentos])
     
+    # Dados de Despesas
     despesas = DespesaAdvocacia.objects.filter(data__year=ano)
-    for d in despesas:
-        data_excel.append({
-            'Tipo': 'Despesa', 
-            'Data': d.data.strftime('%d/%m/%Y') if d.data else '', 
-            'Descrição': d.descricao, 
-            'Valor': float(d.valor)
-        })
+    df_desp = pd.DataFrame([{
+        'Data': d.data.strftime('%d/%m/%Y'),
+        'Descrição': d.descricao,
+        'Local': d.local,
+        'Valor (R$)': float(d.valor)
+    } for d in despesas])
 
-    if not data_excel:
+    if df_fatu.empty and df_desp.empty:
         return HttpResponse("Não há dados para exportar neste ano.")
 
-    df = pd.DataFrame(data_excel)
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Relatorio')
+        if not df_fatu.empty:
+            df_fatu.to_excel(writer, index=False, sheet_name='Faturamentos')
+        if not df_desp.empty:
+            df_desp.to_excel(writer, index=False, sheet_name='Despesas')
     
     response = HttpResponse(output.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename=Relatorio_Advocacia_{ano}.xlsx'
     return response
 
 def download_advocacia_pdf(request):
+    # Aciona a impressão do navegador com o layout já configurado no HTML
     return HttpResponse("<script>window.print(); window.history.back();</script>")
