@@ -1,18 +1,26 @@
 {% extends "admin/change_list.html" %}
 {% block content_title %}
     {{ block.super }}
-    <div style="background: #fff; padding: 15px; border-radius: 8px; margin: 10px 0 20px 0; border: 1px solid #ccc; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+    
+    <h2 style="margin: 20px 0 10px 0; color: #444; font-size: 16px;">
+        Resumo de Gastos - Ano: {{ ano_exibido }}
+    </h2>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 35px; border: 1px solid #d1d1d1; display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; clear: both;">
         {% for mes, valor in resumo_financeiro.items %}
-            <div style="text-align: center; border: 1px solid #eee; padding: 8px; border-radius: 4px; min-width: 50px; background: #f9f9f9;">
-                <strong style="color: #666; display: block; font-size: 11px; text-transform: uppercase;">{{ mes }}</strong>
-                <span style="font-weight: bold; color: {% if valor > 0 %}#d32f2f{% else %}#9e9e9e{% endif %}; font-size: 13px;">
+            <div style="text-align: center; border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; min-width: 65px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <strong style="color: #777; display: block; font-size: 11px; margin-bottom: 5px;">{{ mes }}</strong>
+                <span style="font-weight: bold; color: {% if valor > 0 %}#c62828{% else %}#9e9e9e{% endif %}; font-size: 14px;">
                     {{ valor|floatformat:0 }}
                 </span>
             </div>
         {% endfor %}
-        <div style="text-align: center; border: 1px solid #263238; padding: 8px; border-radius: 4px; background: #263238; color: white; min-width: 100px;">
-            <strong style="display: block; font-size: 11px; text-transform: uppercase;">TOTAL ANO</strong>
-            <span style="font-weight: bold; font-size: 13px;">R$ {{ total_geral_ano|floatformat:2 }}</span>
+        
+        <div style="text-align: center; border: 1px solid #37474f; padding: 10px; border-radius: 6px; background: #37474f; color: white; min-width: 120px; margin-left: auto;">
+            <strong style="display: block; font-size: 11px; margin-bottom: 5px;">TOTAL EM {{ ano_exibido }}</strong>
+            <span style="font-weight: bold; font-size: 15px;">R$ {{ total_geral_ano|floatformat:2 }}</span>
         </div>
     </div>
+    
+    <div style="clear: both; height: 10px;"></div>
 {% endblock %}
