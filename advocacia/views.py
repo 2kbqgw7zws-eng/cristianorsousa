@@ -21,12 +21,13 @@ def relatorio_advocacia(request):
     else:
         ano = hoje.year
 
-    # --- Consolidados Anuais com arredondamento ---
-    fatu_total_raw = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    desp_total_raw = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    # --- Consolidados Anuais com tratamento rigoroso de decimais ---
+    fatu_total_db = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    desp_total_db = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     
-    faturamento_total = round(float(fatu_total_raw), 2)
-    despesas_totais = round(float(desp_total_raw), 2)
+    # Conversão explícita para float e arredondamento para 2 casas
+    faturamento_total = round(float(fatu_total_db), 2)
+    despesas_totais = round(float(desp_total_db), 2)
     lucro_total = round(faturamento_total - despesas_totais, 2)
 
     processos_qs = ProcessoFaturamento.objects.all()
@@ -56,16 +57,16 @@ def relatorio_advocacia(request):
 
     meses_detalhes = []
     for i in range(12, 0, -1):
-        f = round(float(fatu_dict.get(i, 0)), 2)
-        d = round(float(desp_dict.get(i, 0)), 2)
+        f_val = round(float(fatu_dict.get(i, 0)), 2)
+        d_val = round(float(desp_dict.get(i, 0)), 2)
         p = proc_dict.get(i, {'total': 0, 'ativos': 0, 'baixados': 0})
         
-        if f > 0 or d > 0 or p['total'] > 0:
+        if f_val > 0 or d_val > 0 or p['total'] > 0:
             meses_detalhes.append({
                 'nome': meses_nomes[i],
-                'faturamento': f,
-                'despesa': d,
-                'lucro': round(f - d, 2),
+                'faturamento': f_val,
+                'despesa': d_val,
+                'lucro': round(f_val - d_val, 2),
                 'proc_total': p['total'],
                 'proc_ativos': p['ativos'],
                 'proc_baixados': p['baixados'],
@@ -89,11 +90,11 @@ def download_advocacia_excel(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
 
-    fatu_total_raw = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    desp_total_raw = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    fatu_raw = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    desp_raw = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     
-    faturamento_total = round(float(fatu_total_raw), 2)
-    despesas_totais = round(float(desp_total_raw), 2)
+    faturamento_total = round(float(fatu_raw), 2)
+    despesas_totais = round(float(desp_raw), 2)
     
     dados_consolidados = [{
         'Descrição': 'RESULTADOS CONSOLIDADOS ANUAIS',
@@ -139,11 +140,11 @@ def download_advocacia_pdf(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
     
-    fatu_total_raw = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    desp_total_raw = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    fatu_raw = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    desp_raw = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     
-    faturamento_total = round(float(fatu_total_raw), 2)
-    despesas_totais = round(float(desp_total_raw), 2)
+    faturamento_total = round(float(fatu_raw), 2)
+    despesas_totais = round(float(desp_raw), 2)
     lucro_total = round(faturamento_total - despesas_totais, 2)
     
     processos_qs = ProcessoFaturamento.objects.all()

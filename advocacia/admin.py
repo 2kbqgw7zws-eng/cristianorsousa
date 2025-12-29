@@ -126,7 +126,7 @@ class DespesaAdmin(ImportExportModelAdmin):
 
 @admin.register(RelatorioAdvocacia)
 class RelatorioAdmin(admin.ModelAdmin):
-    # Estas duas linhas abaixo forçam o nome correto no menu lateral
+    # Força os nomes corretos para o menu lateral
     RelatorioAdvocacia._meta.verbose_name = "Visualizar Relatório Gerencial"
     RelatorioAdvocacia._meta.verbose_name_plural = "Visualizar Relatórios Gerencial"
 
