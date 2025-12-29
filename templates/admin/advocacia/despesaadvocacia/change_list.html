@@ -6,8 +6,8 @@
     
     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0 30px 0; border: 1px solid #d1d1d1; display: block; overflow: hidden; clear: both;">
         <h2 style="margin: 0 0 15px 0; color: #444; font-size: 16px; border: none; padding: 0;">
-            Resumo de Gastos - Ano: {{ ano_exibido }}
-        </h2>
+    Resumo de Gastos - Ano: {{ ano_exibido|stringformat:"d" }}
+</h2>
 
         <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start;">
             {% for mes, valor in resumo_financeiro.items %}
