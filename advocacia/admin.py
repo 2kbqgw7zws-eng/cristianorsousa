@@ -3,13 +3,26 @@ from django.shortcuts import redirect
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
 from import_export.admin import ImportExportModelAdmin
+from import_export import resources  # IMPORTANTE PARA A IMPORTAÇÃO
 from .models import DespesaAdvocacia, FaturamentoAdvocacia, RelatorioAdvocacia, ProcessoFaturamento
 import datetime
 
-# Inline para Processos dentro de Faturamento
+# --- CONFIGURAÇÃO DE RECURSOS PARA IMPORTAÇÃO/EXPORTAÇÃO ---
+
+class DespesaResource(resources.ModelResource):
+    class Meta:
+        model = DespesaAdvocacia
+        # Define os campos que o Excel deve ter
+        fields = ('id', 'data', 'descricao', 'local', 'valor')
+        export_order = ('id', 'data', 'descricao', 'local', 'valor')
+
+# --- INLINES ---
+
 class ProcessoInline(admin.TabularInline):
     model = ProcessoFaturamento
     extra = 1
+
+# --- CLASSES ADMIN ---
 
 @admin.register(FaturamentoAdvocacia)
 class FaturamentoAdmin(admin.ModelAdmin):
@@ -19,29 +32,26 @@ class FaturamentoAdmin(admin.ModelAdmin):
 
 @admin.register(DespesaAdvocacia)
 class DespesaAdmin(ImportExportModelAdmin):
+    # Liga o mapeador de Excel a esta tela
+    resource_class = DespesaResource
+    
     change_list_template = 'admin/advocacia/despesaadvocacia/change_list.html'
     
     list_display = ('data', 'descricao', 'local', 'valor')
     search_fields = ('descricao', 'local')
-    
-    # ATIVA A BARRA DE NAVEGAÇÃO POR DATA NO TOPO
     date_hierarchy = 'data' 
-    
-    # MANTÉM O FILTRO LATERAL
     list_filter = ('data',)
 
+    # AGORA TRUE: Habilita o botão "Importar" no topo da página
     def has_import_permission(self, request):
-        return False
+        return True
 
     def changelist_view(self, request, extra_context=None):
         hoje = datetime.date.today()
         
-        # Pega o ano da hierarquia de datas ou do filtro lateral
-        # O Django usa 'data__year' na URL quando você clica na hierarquia
+        # Lógica de detecção de ano para o resumo mensal
         ano_filtrado = request.GET.get('data__year')
-        
         if not ano_filtrado:
-            # Tenta pegar de outros formatos de filtro de data
             data_gte = request.GET.get('data__gte')
             if data_gte:
                 ano_filtrado = data_gte[:4]
@@ -50,7 +60,7 @@ class DespesaAdmin(ImportExportModelAdmin):
         
         ano_filtrado = int(ano_filtrado)
 
-        # Agrupa gastos por mês do ano selecionado
+        # Cálculo do resumo mensal
         resumo_mensal = (
             DespesaAdvocacia.objects.filter(data__year=ano_filtrado)
             .annotate(mes=ExtractMonth('data'))
