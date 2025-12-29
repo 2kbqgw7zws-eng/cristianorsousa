@@ -129,10 +129,8 @@ def download_advocacia_pdf(request):
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
     
-    # Dados para o template simplificado
     faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-    
     processos_qs = ProcessoFaturamento.objects.all()
     
     meses_nomes = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho',
@@ -169,8 +167,13 @@ def download_advocacia_pdf(request):
         'meses_detalhes': meses_detalhes,
     }
     
-    # IMPORTANTE: Renderizamos e forçamos o cabeçalho para download
+    # FORÇANDO O DOWNLOAD BINÁRIO
+    # Renderizamos o HTML simplificado
     response = render(request, 'relatorio_pdf_simplificado.html', context)
-    # Mudamos o content_type para garantir que o navegador veja como algo para baixar/imprimir isoladamente
-    response['Content-Disposition'] = f'inline; filename="Relatorio_{ano}.pdf"'
+    
+    # Mudamos o tipo de conteúdo para "octet-stream" (arquivo binário/download)
+    response['Content-Type'] = 'application/octet-stream'
+    # Definimos como anexo para forçar o download no MacBook
+    response['Content-Disposition'] = f'attachment; filename="Relatorio_Advocacia_{ano}.pdf"'
+    
     return response
