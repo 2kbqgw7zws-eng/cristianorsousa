@@ -21,7 +21,6 @@
         .label-mini { font-size: 0.6rem; color: #999; text-transform: uppercase; font-weight: 800; display: block; }
         .valor-bold { font-weight: bold; font-size: 1rem; color: #333; }
 
-        /* CONFIGURAÇÃO PARA O PDF (IMPRESSÃO) */
         @media print {
             @page { size: A4 landscape; margin: 1cm; }
             .header-nav, .btn, .no-print { display: none !important; }
@@ -31,6 +30,7 @@
             .text-success { color: #28a745 !important; }
             .text-danger { color: #dc3545 !important; }
             .text-primary { color: #007bff !important; }
+            .text-warning { color: #ffc107 !important; }
             .col-md-2, .col-md-4, .col-md-6 { float: left !important; }
             .row { display: flex !important; flex-wrap: nowrap !important; }
         }
@@ -54,37 +54,37 @@
         <div class="consolidado-dark shadow">
             <h6 class="mb-4 text-uppercase border-bottom border-secondary pb-2" style="font-size: 0.7rem; letter-spacing: 1px;">Resultados Consolidados (Advocacia)</h6>
             <div class="row text-center">
-                <div class="col-md-2 metric-box"><p class="metric-label">Faturamento</p><p class="metric-value text-success">R$ {{ faturamento|floatformat:2 }} [cite: 92]</p></div>
-                <div class="col-md-2 metric-box"><p class="metric-label">Despesas</p><p class="metric-value text-danger">R$ {{ despesas|floatformat:2 }} [cite: 92]</p></div>
-                <div class="col-md-2 metric-box"><p class="metric-label">Lucro Líquido</p><p class="metric-value text-warning">R$ {{ lucro|floatformat:2 }} [cite: 93]</p></div>
-                <div class="col-md-2 metric-box"><p class="metric-label">Processos</p><p class="metric-value text-info">{{ total_processos }} [cite: 89]</p></div>
-                <div class="col-md-2 metric-box"><p class="metric-label">Ativos</p><p class="metric-value">{{ processos_ativos }} [cite: 90]</p></div>
-                <div class="col-md-2 metric-box"><p class="metric-label">Baixados</p><p class="metric-value text-secondary">{{ processos_baixados }} [cite: 91]</p></div>
+                <div class="col-md-2 metric-box"><p class="metric-label">Faturamento</p><p class="metric-value text-success">R$ {{ faturamento|floatformat:2 }}</p></div>
+                <div class="col-md-2 metric-box"><p class="metric-label">Despesas</p><p class="metric-value text-danger">R$ {{ despesas|floatformat:2 }}</p></div>
+                <div class="col-md-2 metric-box"><p class="metric-label">Lucro Líquido</p><p class="metric-value text-warning">R$ {{ lucro|floatformat:2 }}</p></div>
+                <div class="col-md-2 metric-box"><p class="metric-label">Processos</p><p class="metric-value text-info">{{ total_processos }}</p></div>
+                <div class="col-md-2 metric-box"><p class="metric-label">Ativos</p><p class="metric-value">{{ processos_ativos }}</p></div>
+                <div class="col-md-2 metric-box"><p class="metric-label">Baixados</p><p class="metric-value text-secondary">{{ processos_baixados }}</p></div>
             </div>
         </div>
 
-        <h5 class="mb-3 text-secondary" style="font-size: 0.9rem; font-weight: bold;">DETALHAMENTO MENSAL [cite: 94]</h5>
+        <h5 class="mb-3 text-secondary" style="font-size: 0.9rem; font-weight: bold;">DETALHAMENTO MENSAL</h5>
 
         {% for item in meses_detalhes %}
         <div class="card-mes-horizontal p-3">
             <div class="row align-items-center">
                 <div class="col-md-2">
-                    <h5 class="mb-0 fw-bold" style="color: #333;">{{ item.nome }} [cite: 95]</h5>
+                    <h5 class="mb-0 fw-bold" style="color: #333;">{{ item.nome }}</h5>
                 </div>
                 
                 <div class="col-md-4 border-end border-start">
                     <div class="row text-center">
                         <div class="col-4">
                             <span class="label-mini">Processos</span>
-                            <span class="valor-bold">{{ item.proc_total }} [cite: 95]</span>
+                            <span class="valor-bold">{{ item.proc_total }}</span>
                         </div>
                         <div class="col-4">
                             <span class="label-mini">Ativos</span>
-                            <span class="valor-bold text-primary">{{ item.proc_ativos }} [cite: 95]</span>
+                            <span class="valor-bold text-primary">{{ item.proc_ativos }}</span>
                         </div>
                         <div class="col-4">
                             <span class="label-mini">Baixados</span>
-                            <span class="valor-bold text-secondary">{{ item.proc_baixados }} [cite: 95]</span>
+                            <span class="valor-bold text-secondary">{{ item.proc_baixados }}</span>
                         </div>
                     </div>
                 </div>
@@ -93,15 +93,15 @@
                     <div class="row text-end">
                         <div class="col-4">
                             <span class="label-mini">Bruto</span>
-                            <span class="valor-bold text-success">R$ {{ item.faturamento|floatformat:2 }} [cite: 95]</span>
+                            <span class="valor-bold text-success">R$ {{ item.faturamento|floatformat:2 }}</span>
                         </div>
                         <div class="col-4">
                             <span class="label-mini">Gastos</span>
-                            <span class="valor-bold text-danger">R$ {{ item.despesa|floatformat:2 }} [cite: 95]</span>
+                            <span class="valor-bold text-danger">R$ {{ item.despesa|floatformat:2 }}</span>
                         </div>
                         <div class="col-4">
                             <span class="label-mini">Líquido</span>
-                            <span class="valor-bold text-primary">R$ {{ item.lucro|floatformat:2 }} [cite: 95]</span>
+                            <span class="valor-bold text-primary">R$ {{ item.lucro|floatformat:2 }}</span>
                         </div>
                     </div>
                 </div>
