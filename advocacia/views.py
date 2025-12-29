@@ -1,87 +1,34 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from .models import DespesaAdvocacia, FaturamentoAdvocacia
 from django.db.models import Sum
-from django.template.loader import get_template
+from .models import FaturamentoAdvocacia, DespesaAdvocacia, ProcessoFaturamento
 import datetime
-import openpyxl
-
-# Tenta importar o pisa para o PDF
-try:
-    from xhtml2pdf import pisa
-except ImportError:
-    pisa = None
 
 def relatorio_advocacia(request):
-    """Exibe a página do relatório no navegador"""
+    # Captura o ano da URL ou usa o atual
+    ano_str = request.GET.get('ano')
     hoje = datetime.date.today()
-    ano_selecionado = int(request.GET.get('ano', hoje.year))
-    
-    faturamento_qs = FaturamentoAdvocacia.objects.filter(data__year=ano_selecionado)
-    despesas_qs = DespesaAdvocacia.objects.filter(data__year=ano_selecionado)
-    
-    total_faturamento = faturamento_qs.aggregate(Sum('valor'))['valor__sum'] or 0
-    total_despesas = despesas_qs.aggregate(Sum('valor'))['valor__sum'] or 0
-    
-    contexto = {
-        'ano': ano_selecionado,
-        'ano_anterior': ano_selecionado - 1,
-        'ano_proximo': ano_selecionado + 1,
-        'faturamento': total_faturamento,
-        'despesas': total_despesas,
-        'lucro': total_faturamento - total_despesas,
-    }
-    return render(request, 'relatorio_advocacia.html', contexto)
+    ano = int(ano_str) if ano_str else hoje.year
 
-def download_advocacia_pdf(request):
-    """Gera o arquivo PDF detalhado"""
-    if pisa is None:
-        return HttpResponse("Erro: Biblioteca xhtml2pdf não encontrada.")
-    
-    hoje = datetime.date.today()
-    ano = int(request.GET.get('ano', hoje.year))
-    
-    faturamentos = FaturamentoAdvocacia.objects.filter(data__year=ano).order_by('data')
-    despesas = DespesaAdvocacia.objects.filter(data__year=ano).order_by('data')
-    
-    contexto = {
+    # Cálculos Financeiros do Ano
+    faturamento = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    despesas = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+    lucro = faturamento - despesas
+
+    # Indicadores de Processos (Total histórico e Status)
+    # Nota: Certifique-se de que o campo 'status' existe no seu modelo ProcessoFaturamento
+    processos_qs = ProcessoFaturamento.objects.all()
+    total_processos = processos_qs.count()
+    processos_ativos = processos_qs.filter(status__iexact='Ativo').count()
+    processos_baixados = processos_qs.filter(status__iexact='Baixado').count()
+
+    context = {
         'ano': ano,
-        'faturamentos': faturamentos,
+        'ano_anterior': ano - 1,
+        'ano_proximo': ano + 1,
+        'faturamento': faturamento,
         'despesas': despesas,
-        'total_f': faturamentos.aggregate(Sum('valor'))['valor__sum'] or 0,
-        'total_d': despesas.aggregate(Sum('valor'))['valor__sum'] or 0,
-        'data_emissao': hoje
+        'lucro': lucro,
+        'total_processos': total_processos,
+        'processos_ativos': processos_ativos,
+        'processos_baixados': processos_baixados,
     }
-    
-    template = get_template('relatorio_advocacia_pdf.html')
-    html = template.render(contexto)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Relatorio_Advocacia_{ano}.pdf"'
-    
-    pisa.CreatePDF(html, dest=response)
-    return response
-
-def download_advocacia_excel(request):
-    """Gera o Excel com abas de Faturamento e Despesas"""
-    hoje = datetime.date.today()
-    ano = int(request.GET.get('ano', hoje.year))
-    
-    wb = openpyxl.Workbook()
-    
-    # Aba 1: Faturamento
-    ws1 = wb.active
-    ws1.title = "Faturamento"
-    ws1.append(['DATA', 'CLIENTE', 'VALOR'])
-    for f in FaturamentoAdvocacia.objects.filter(data__year=ano).order_by('data'):
-        ws1.append([f.data.strftime('%d/%m/%Y'), f.cliente, float(f.valor)])
-    
-    # Aba 2: Despesas
-    ws2 = wb.create_sheet(title="Despesas")
-    ws2.append(['DATA', 'DESCRIÇÃO', 'LOCAL', 'VALOR'])
-    for d in DespesaAdvocacia.objects.filter(data__year=ano).order_by('data'):
-        ws2.append([d.data.strftime('%d/%m/%Y'), d.descricao, d.local, float(d.valor)])
-        
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="Financeiro_Advocacia_{ano}.xlsx"'
-    wb.save(response)
-    return response
+    return render(request, 'relatorio_advocacia.html', context)
