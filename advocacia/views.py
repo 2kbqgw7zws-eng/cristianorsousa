@@ -1,15 +1,46 @@
+from django.shortcuts import render
+from django.http import HttpResponse
+from .models import DespesaAdvocacia, FaturamentoAdvocacia
+from django.db.models import Sum
+from django.template.loader import get_template
+import datetime
+import openpyxl
+
+# Tenta importar o pisa para o PDF
+try:
+    from xhtml2pdf import pisa
+except ImportError:
+    pisa = None
+
+def relatorio_advocacia(request):
+    """Exibe a página do relatório no navegador"""
+    hoje = datetime.date.today()
+    ano_selecionado = int(request.GET.get('ano', hoje.year))
+    
+    faturamento_qs = FaturamentoAdvocacia.objects.filter(data__year=ano_selecionado)
+    despesas_qs = DespesaAdvocacia.objects.filter(data__year=ano_selecionado)
+    
+    total_faturamento = faturamento_qs.aggregate(Sum('valor'))['valor__sum'] or 0
+    total_despesas = despesas_qs.aggregate(Sum('valor'))['valor__sum'] or 0
+    
+    contexto = {
+        'ano': ano_selecionado,
+        'ano_anterior': ano_selecionado - 1,
+        'ano_proximo': ano_selecionado + 1,
+        'faturamento': total_faturamento,
+        'despesas': total_despesas,
+        'lucro': total_faturamento - total_despesas,
+    }
+    return render(request, 'relatorio_advocacia.html', contexto)
+
 def download_advocacia_pdf(request):
+    """Gera o arquivo PDF detalhado"""
     if pisa is None:
-        return HttpResponse("Erro: Biblioteca PDF não encontrada.")
+        return HttpResponse("Erro: Biblioteca xhtml2pdf não encontrada.")
     
-    # Captura o ano da URL. Se não vier nada, usa o ano atual.
-    ano = request.GET.get('ano')
-    if not ano or ano == 'None':
-        ano = datetime.date.today().year
-    else:
-        ano = int(ano)
+    hoje = datetime.date.today()
+    ano = int(request.GET.get('ano', hoje.year))
     
-    # Busca os dados filtrando rigorosamente pelo ano selecionado
     faturamentos = FaturamentoAdvocacia.objects.filter(data__year=ano).order_by('data')
     despesas = DespesaAdvocacia.objects.filter(data__year=ano).order_by('data')
     
@@ -19,33 +50,32 @@ def download_advocacia_pdf(request):
         'despesas': despesas,
         'total_f': faturamentos.aggregate(Sum('valor'))['valor__sum'] or 0,
         'total_d': despesas.aggregate(Sum('valor'))['valor__sum'] or 0,
-        'data_emissao': datetime.date.today()
+        'data_emissao': hoje
     }
     
     template = get_template('relatorio_advocacia_pdf.html')
     html = template.render(contexto)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Relatorio_Advocacia_{ano}.pdf"'
+    
     pisa.CreatePDF(html, dest=response)
     return response
 
 def download_advocacia_excel(request):
-    ano = request.GET.get('ano')
-    if not ano or ano == 'None':
-        ano = datetime.date.today().year
-    else:
-        ano = int(ano)
+    """Gera o Excel com abas de Faturamento e Despesas"""
+    hoje = datetime.date.today()
+    ano = int(request.GET.get('ano', hoje.year))
     
     wb = openpyxl.Workbook()
     
-    # Planilha de Faturamento
+    # Aba 1: Faturamento
     ws1 = wb.active
     ws1.title = "Faturamento"
     ws1.append(['DATA', 'CLIENTE', 'VALOR'])
     for f in FaturamentoAdvocacia.objects.filter(data__year=ano).order_by('data'):
         ws1.append([f.data.strftime('%d/%m/%Y'), f.cliente, float(f.valor)])
     
-    # Planilha de Despesas
+    # Aba 2: Despesas
     ws2 = wb.create_sheet(title="Despesas")
     ws2.append(['DATA', 'DESCRIÇÃO', 'LOCAL', 'VALOR'])
     for d in DespesaAdvocacia.objects.filter(data__year=ano).order_by('data'):
