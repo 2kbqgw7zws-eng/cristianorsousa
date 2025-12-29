@@ -7,6 +7,10 @@ from django.http import HttpResponse
 import pandas as pd
 import io
 
+# Importações essenciais para a geração do PDF binário real
+from django.template.loader import get_template
+from xhtml2pdf import pisa 
+
 def relatorio_advocacia(request):
     ano_str = request.GET.get('ano')
     hoje = datetime.date.today()
@@ -17,7 +21,6 @@ def relatorio_advocacia(request):
     else:
         ano = hoje.year
 
-    # --- Consolidados Anuais ---
     faturamento_total = FaturamentoAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     despesas_totais = DespesaAdvocacia.objects.filter(data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
     lucro_total = faturamento_total - despesas_totais
@@ -27,7 +30,6 @@ def relatorio_advocacia(request):
     processos_ativos_total = processos_qs.filter(status__iexact='Ativo').count()
     processos_baixados_total = processos_qs.filter(status__iexact='Baixado').count()
 
-    # --- Detalhamento Mensal ---
     meses_nomes = {
         1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho',
         7: 'Julho', 8: 'Agosto', 9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
@@ -167,13 +169,18 @@ def download_advocacia_pdf(request):
         'meses_detalhes': meses_detalhes,
     }
     
-    # FORÇANDO O DOWNLOAD BINÁRIO
-    # Renderizamos o HTML simplificado
-    response = render(request, 'relatorio_pdf_simplificado.html', context)
-    
-    # Mudamos o tipo de conteúdo para "octet-stream" (arquivo binário/download)
-    response['Content-Type'] = 'application/octet-stream'
-    # Definimos como anexo para forçar o download no MacBook
+    # GERAÇÃO DO PDF BINÁRIO REAL
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Relatorio_Advocacia_{ano}.pdf"'
     
+    # Carrega o template HTML
+    template = get_template('relatorio_pdf_simplificado.html')
+    html = template.render(context)
+    
+    # Converte o HTML em PDF binário
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Erro ao gerar PDF binário', status=500)
+        
     return response
