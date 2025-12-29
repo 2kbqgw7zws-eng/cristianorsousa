@@ -8,12 +8,11 @@ import pandas as pd
 import io
 
 def relatorio_advocacia(request):
-    # Limpeza do ano para evitar erro de formatação (2.025 -> 2025)
     ano_str = request.GET.get('ano')
     hoje = datetime.date.today()
     
     if ano_str:
-        ano_str = ano_str.replace('.', '') # Remove pontos se houver
+        ano_str = str(ano_str).replace('.', '')
         ano = int(ano_str)
     else:
         ano = hoje.year
@@ -37,7 +36,6 @@ def relatorio_advocacia(request):
     fatu_mes = FaturamentoAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     desp_mes = DespesaAdvocacia.objects.filter(data__year=ano).annotate(m=ExtractMonth('data')).values('m').annotate(total=Sum('valor'))
     
-    # Contagem mensal de processos (usando a relação com faturamento)
     proc_mes = ProcessoFaturamento.objects.filter(faturamento__data__year=ano).annotate(
         m=ExtractMonth('faturamento__data')
     ).values('m').annotate(
@@ -73,7 +71,7 @@ def relatorio_advocacia(request):
         'despesas': despesas_totais,
         'lucro': lucro_total,
         'total_processos': total_processos_historico,
-        'processos_ativos': processos_ativos_total,
+        'processos_ativos': procesos_ativos_total,
         'processos_baixados': processos_baixados_total,
         'meses_detalhes': meses_detalhes,
         'ano_anterior': ano - 1,
@@ -82,20 +80,20 @@ def relatorio_advocacia(request):
     return render(request, 'relatorio_advocacia.html', context)
 
 def download_advocacia_excel(request):
-    ano_str = request.GET.get('ano')
-    if ano_str:
-        ano = int(ano_str.replace('.', '')) # Limpeza vital aqui também
-    else:
-        ano = datetime.date.today().year
+    ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
+    ano = int(ano_str)
 
     data_excel = []
     faturamentos = FaturamentoAdvocacia.objects.filter(data__year=ano)
     for f in faturamentos:
-        data_excel.append({'Tipo': 'Faturamento', 'Data': f.data, 'Descrição': f.cliente, 'Valor': f.valor})
+        data_excel.append({'Tipo': 'Faturamento', 'Data': f.data.strftime('%d/%m/%Y'), 'Descrição': f.cliente, 'Valor': float(f.valor)})
     
     despesas = DespesaAdvocacia.objects.filter(data__year=ano)
     for d in despesas:
-        data_excel.append({'Tipo': 'Despesa', 'Data': d.data, 'Descrição': d.descricao, 'Valor': d.valor})
+        data_excel.append({'Tipo': 'Despesa', 'Data': d.data.strftime('%d/%m/%Y'), 'Descrição': d.descricao, 'Valor': float(d.valor)})
+
+    if not data_excel:
+        return HttpResponse("Não há dados para exportar neste ano.")
 
     df = pd.DataFrame(data_excel)
     output = io.BytesIO()
@@ -107,4 +105,5 @@ def download_advocacia_excel(request):
     return response
 
 def download_advocacia_pdf(request):
-    return HttpResponse("Use Ctrl+P para salvar como PDF.")
+    # Solução limpa: abre o relatório e chama a impressão do sistema
+    return HttpResponse("<script>window.print(); window.history.back();</script>")

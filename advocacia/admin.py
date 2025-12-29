@@ -7,7 +7,7 @@ from import_export import resources
 from .models import DespesaAdvocacia, FaturamentoAdvocacia, RelatorioAdvocacia, ProcessoFaturamento
 import datetime
 
-# --- RESOURCES PARA IMPORTAÇÃO ---
+# --- RESOURCES (Necessário para a Importação/Exportação funcionar) ---
 
 class DespesaResource(resources.ModelResource):
     class Meta:
@@ -28,9 +28,8 @@ class ProcessoInline(admin.TabularInline):
 # --- CLASSES ADMIN ---
 
 @admin.register(FaturamentoAdvocacia)
-class FaturamentoAdmin(ImportExportModelAdmin):
+class FaturamentoAdmin(ImportExportModelAdmin): # ImportExportModelAdmin ativa os botões
     resource_class = FaturamentoResource
-    # Define o template customizado para o faturamento
     change_list_template = 'admin/advocacia/faturamentoadvocacia/change_list.html'
     
     list_display = ('data', 'cliente', 'cpf_cnpj', 'valor')
@@ -39,16 +38,19 @@ class FaturamentoAdmin(ImportExportModelAdmin):
     list_filter = ('data',)
     inlines = [ProcessoInline]
 
+    def has_import_permission(self, request):
+        return True # Garante que o botão Importar apareça
+
     def changelist_view(self, request, extra_context=None):
+        # Lógica do resumo mensal (mantida para não quebrar seu layout)
         hoje = datetime.date.today()
         ano_filtrado = request.GET.get('data__year')
         if not ano_filtrado:
             data_gte = request.GET.get('data__gte')
             ano_filtrado = data_gte[:4] if data_gte else hoje.year
         
-        ano_filtrado = int(ano_filtrado)
+        ano_filtrado = int(str(ano_filtrado).replace('.', ''))
 
-        # Cálculo de faturamentos mensais
         resumo_mensal = (
             FaturamentoAdvocacia.objects.filter(data__year=ano_filtrado)
             .annotate(mes=ExtractMonth('data'))
@@ -62,7 +64,6 @@ class FaturamentoAdmin(ImportExportModelAdmin):
         
         dados_resumo = {meses_nomes[m]: 0 for m in meses_nomes}
         total_geral = 0
-        
         for item in resumo_mensal:
             if item['mes'] in meses_nomes:
                 nome_mes = meses_nomes[item['mes']]
@@ -77,22 +78,28 @@ class FaturamentoAdmin(ImportExportModelAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
 @admin.register(DespesaAdvocacia)
-class DespesaAdmin(ImportExportModelAdmin):
+class DespesaAdmin(ImportExportModelAdmin): # ImportExportModelAdmin ativa os botões
     resource_class = DespesaResource
     change_list_template = 'admin/advocacia/despesaadvocacia/change_list.html'
+    
     list_display = ('data', 'descricao', 'local', 'valor')
     search_fields = ('descricao', 'local')
     date_hierarchy = 'data'
     list_filter = ('data',)
 
+    def has_import_permission(self, request):
+        return True # Garante que o botão Importar apareça
+
     def changelist_view(self, request, extra_context=None):
+        # Lógica do resumo mensal (mantida para não quebrar seu layout)
         hoje = datetime.date.today()
         ano_filtrado = request.GET.get('data__year')
         if not ano_filtrado:
             data_gte = request.GET.get('data__gte')
             ano_filtrado = data_gte[:4] if data_gte else hoje.year
         
-        ano_filtrado = int(ano_filtrado)
+        ano_filtrado = int(str(ano_filtrado).replace('.', ''))
+
         resumo_mensal = (
             DespesaAdvocacia.objects.filter(data__year=ano_filtrado)
             .annotate(mes=ExtractMonth('data'))

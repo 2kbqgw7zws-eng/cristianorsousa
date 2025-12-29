@@ -32,6 +32,9 @@
             </div>
             <div class="d-flex gap-2">
                 <a href="{% url 'download_advocacia_excel' %}?ano={{ ano|stringformat:'d' }}" class="btn btn-success btn-sm fw-bold"><i class="fas fa-file-excel"></i> Baixar Excel</a>
+                
+                <a href="{% url 'download_advocacia_pdf' %}?ano={{ ano|stringformat:'d' }}" class="btn btn-danger btn-sm fw-bold"><i class="fas fa-file-pdf"></i> Baixar PDF</a>
+                
                 <a href="/admin/" class="btn btn-secondary btn-sm">Voltar</a>
             </div>
         </div>
