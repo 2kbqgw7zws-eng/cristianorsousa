@@ -23,6 +23,11 @@ class ProcessoInline(admin.TabularInline):
     model = ProcessoFaturamento
     extra = 1
 
+# --- FUNÇÃO AUXILIAR DE FORMATAÇÃO ---
+def formatar_brl(valor):
+    """Converte float para string no padrão R$ 1.000,00"""
+    return "{:,.2f}".format(valor).replace(',', 'X').replace('.', ',').replace('X', '.')
+
 # --- CLASSES ADMIN ---
 
 @admin.register(FaturamentoAdvocacia)
@@ -51,20 +56,22 @@ class FaturamentoAdmin(ImportExportModelAdmin):
         meses_nomes = {1:'Jan', 2:'Fev', 3:'Mar', 4:'Abr', 5:'Mai', 6:'Jun',
                        7:'Jul', 8:'Ago', 9:'Set', 10:'Out', 11:'Nov', 12:'Dez'}
         
-        dados_resumo = {meses_nomes[m]: 0 for m in meses_nomes}
+        # Inicializa com string "0,00"
+        dados_resumo = {meses_nomes[m]: "0,00" for m in meses_nomes}
         total_geral = 0
+        
         for item in resumo_mensal:
             if item['mes'] in meses_nomes:
-                # CORREÇÃO: O cálculo de arredondamento deve ficar dentro deste loop
                 valor = float(item['total'] or 0)
-                dados_resumo[meses_nomes[item['mes']]] = round(valor, 2)
+                dados_resumo[meses_nomes[item['mes']]] = formatar_brl(valor)
                 total_geral += valor
 
         extra_context = extra_context or {}
         extra_context.update({
             'resumo_financeiro': dados_resumo,
-            'total_geral_ano': round(total_geral, 2),
+            'total_geral_ano': formatar_brl(total_geral),
             'ano_exibido': ano_filtrado,
+            'metric_class': 'text-success' # Verde para Faturamento
         })
         return super().changelist_view(request, extra_context=extra_context)
 
@@ -91,27 +98,30 @@ class DespesaAdmin(ImportExportModelAdmin):
         )
 
         meses_nomes = {1:'Jan', 2:'Fev', 3:'Mar', 4:'Abr', 5:'Mai', 6:'Jun',
-                       7:'Julho', 8:'Ago', 9:'Set', 10:'Out', 11:'Nov', 12:'Dez'}
+                       7:'Jul', 8:'Ago', 9:'Set', 10:'Out', 11:'Nov', 12:'Dez'}
         
-        dados_resumo = {meses_nomes[m]: 0 for m in meses_nomes}
+        # Inicializa com string "0,00"
+        dados_resumo = {meses_nomes[m]: "0,00" for m in meses_nomes}
         total_geral = 0
+        
         for item in resumo_mensal:
             if item['mes'] in meses_nomes:
-                # CORREÇÃO: O cálculo de arredondamento deve ficar dentro deste loop
                 valor = float(item['total'] or 0)
-                dados_resumo[meses_nomes[item['mes']]] = round(valor, 2)
+                dados_resumo[meses_nomes[item['mes']]] = formatar_brl(valor)
                 total_geral += valor
 
         extra_context = extra_context or {}
         extra_context.update({
             'resumo_financeiro': dados_resumo,
-            'total_geral_ano': round(total_geral, 2),
+            'total_geral_ano': formatar_brl(total_geral),
             'ano_exibido': ano_filtrado,
+            'metric_class': 'text-danger' # Vermelho para Despesas
         })
         return super().changelist_view(request, extra_context=extra_context)
 
 @admin.register(RelatorioAdvocacia)
 class RelatorioAdmin(admin.ModelAdmin):
+    # Força o nome no menu lateral e título
     RelatorioAdvocacia._meta.verbose_name = "Visualizar Relatório Gerencial"
     RelatorioAdvocacia._meta.verbose_name_plural = "Visualizar Relatórios Gerencial"
 
