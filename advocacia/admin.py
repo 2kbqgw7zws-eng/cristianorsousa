@@ -126,12 +126,14 @@ class DespesaAdmin(ImportExportModelAdmin):
 
 @admin.register(RelatorioAdvocacia)
 class RelatorioAdmin(admin.ModelAdmin):
-    # Força os nomes corretos para o menu lateral
+    # Força o nome no menu lateral
     RelatorioAdvocacia._meta.verbose_name = "Visualizar Relatório Gerencial"
     RelatorioAdvocacia._meta.verbose_name_plural = "Visualizar Relatórios Gerencial"
 
     def changelist_view(self, request, extra_context=None):
         return redirect('relatorio_advocacia')
-    
-    def has_add_permission(self, request): return False
-    def has_delete_permission(self, request, obj=None): return False
+
+# Dentro das funções changelist_view das Despesas/Faturamento para o topo do Admin:
+# No loop onde os dados do resumo financeiro são montados, force o float:
+valor = float(item['total'] or 0)
+dados_resumo[nome_mes] = round(valor, 2)
