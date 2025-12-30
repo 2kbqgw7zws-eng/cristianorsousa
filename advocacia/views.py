@@ -7,7 +7,7 @@ from django.http import HttpResponse
 import pandas as pd
 import io
 
-# Importações para o PDF Real
+# Importações para o PDF Real (ATIVADO)
 from django.template.loader import get_template
 from xhtml2pdf import pisa 
 
@@ -137,6 +137,7 @@ def download_advocacia_excel(request):
     return response
 
 def download_advocacia_pdf(request):
+    # Lógica reativada!
     ano_str = request.GET.get('ano', str(datetime.date.today().year)).replace('.', '')
     ano = int(ano_str)
     

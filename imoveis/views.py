@@ -8,8 +8,8 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill
 from django.template.loader import get_template
 
-# COMENTADO TEMPORARIAMENTE PARA DESTRAVAR O TERMINAL DO MAC
-# from xhtml2pdf import pisa 
+# --- BIBLIOTECA DE PDF ATIVADA ---
+from xhtml2pdf import pisa 
 
 def buscar_dados_relatorio(ano_selecionado):
     hoje = datetime.date.today()
@@ -108,22 +108,33 @@ def relatorio_geral(request):
     return render(request, 'relatorio.html', contexto)
 
 def download_relatorio_pdf(request):
-    return HttpResponse("PDF desativado no Mac para permitir migrações.")
-    # Código original comentado:
-    # hoje = datetime.date.today()
-    # try: ano = int(request.GET.get('ano', hoje.year))
-    # except ValueError: ano = hoje.year
-    # contexto = buscar_dados_relatorio(ano)
-    # todas_locacoes = Locacao.objects.all()
-    # contexto['geral']['total_faturado'] = todas_locacoes.aggregate(Sum('valor_cobrado_diaria'))['valor_cobrado_diaria__sum'] or 0
-    # contexto['geral']['total_locacoes'] = todas_locacoes.count()
-    # contexto['ano'] = "Geral (Consolidado)"
-    # template = get_template('relatorio_pdf.html')
-    # html = template.render(contexto)
-    # response = HttpResponse(content_type='application/pdf')
-    # response['Content-Disposition'] = 'attachment; filename="Relatorio_Geral_Locacoes.pdf"'
-    # pisa.CreatePDF(html, dest=response)
-    # return response
+    # Lógica ativada
+    hoje = datetime.date.today()
+    try: 
+        ano = int(request.GET.get('ano', hoje.year))
+    except ValueError: 
+        ano = hoje.year
+    
+    contexto = buscar_dados_relatorio(ano)
+    
+    # Ajuste para pegar totais globais no PDF
+    todas_locacoes = Locacao.objects.all()
+    contexto['geral']['total_faturado'] = todas_locacoes.aggregate(Sum('valor_cobrado_diaria'))['valor_cobrado_diaria__sum'] or 0
+    contexto['geral']['total_locacoes'] = todas_locacoes.count()
+    contexto['ano'] = "Geral (Consolidado)"
+    
+    template = get_template('relatorio_pdf.html')
+    html = template.render(contexto)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Relatorio_Geral_Locacoes.pdf"'
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Erro ao gerar PDF', status=500)
+    
+    return response
 
 def download_relatorio_excel(request):
     locacoes = Locacao.objects.all().order_by('data_entrada')
@@ -151,20 +162,28 @@ def download_relatorio_excel(request):
     return response
 
 def download_despesas_pdf(request):
-    return HttpResponse("PDF desativado no Mac para permitir migrações.")
-    # despesas = Despesa.objects.all().order_by('-data_pagamento')
-    # total_despesas = despesas.aggregate(Sum('valor'))['valor__sum'] or 0
-    # contexto = {
-    #     'despesas': despesas,
-    #     'total_geral': total_despesas,
-    #     'data_emissao': datetime.date.today(),
-    # }
-    # template = get_template('relatorio_despesas_pdf.html')
-    # html = template.render(contexto)
-    # response = HttpResponse(content_type='application/pdf')
-    # response['Content-Disposition'] = 'attachment; filename="Relatorio_Despesas.pdf"'
-    # pisa.CreatePDF(html, dest=response)
-    # return response
+    # Lógica ativada
+    despesas = Despesa.objects.all().order_by('-data_pagamento')
+    total_despesas = despesas.aggregate(Sum('valor'))['valor__sum'] or 0
+    
+    contexto = {
+        'despesas': despesas,
+        'total_geral': total_despesas,
+        'data_emissao': datetime.date.today(),
+    }
+    
+    template = get_template('relatorio_despesas_pdf.html')
+    html = template.render(contexto)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Relatorio_Despesas.pdf"'
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Erro ao gerar PDF', status=500)
+    
+    return response
 
 def download_despesas_excel(request):
     despesas = Despesa.objects.all().order_by('-data_pagamento')

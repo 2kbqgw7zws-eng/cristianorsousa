@@ -12,7 +12,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Application definition
+# --- APLICAÇÕES INSTALADAS ---
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -20,10 +20,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize',  # ADICIONADO PARA FORMATAÇÃO DE MOEDA (0,00)
+    
+    # Bibliotecas Extras do Django (Adicionado humanize aqui)
+    'django.contrib.humanize',
+
+    # Bibliotecas de Terceiros
+    'admin_reorder',
     'import_export',
-    'imoveis',
+
+    # Seus Apps
     'advocacia',
+    'imoveis',
 ]
 
 MIDDLEWARE = [
@@ -34,6 +41,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # Middleware de ordenação (Obrigatório aqui no final)
+    'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 ROOT_URLCONF = 'setup.urls'
@@ -79,7 +89,7 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# FORÇA O FORMATO BRASILEIRO (1.000,00)
+# Formatação Brasileira
 USE_THOUSAND_SEPARATOR = True
 DECIMAL_SEPARATOR = ','
 THOUSAND_SEPARATOR = '.'
@@ -89,3 +99,25 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- ORDENAÇÃO DO MENU ADMIN ---
+# Aqui definimos a ordem exata dos blocos
+ADMIN_REORDER = (
+    # 1º LUGAR: Autenticação
+    {
+        'app': 'auth', 
+        'label': 'Autenticação e Autorização', 
+    },
+
+    # 2º LUGAR: Advocacia
+    {
+        'app': 'advocacia', 
+        'label': 'Advocacia',
+    },
+
+    # 3º LUGAR: Imóveis
+    {
+        'app': 'imoveis', 
+        'label': 'Imóveis',
+    },
+)
