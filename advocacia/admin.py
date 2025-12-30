@@ -23,9 +23,9 @@ class ProcessoInline(admin.TabularInline):
     model = ProcessoFaturamento
     extra = 1
 
-# --- FUNÇÃO AUXILIAR DE FORMATAÇÃO ---
+# --- FUNÇÃO AUXILIAR ---
 def formatar_brl(valor):
-    """Converte float para string no padrão R$ 1.000,00"""
+    """Converte float para string R$ 1.000,00"""
     return "{:,.2f}".format(valor).replace(',', 'X').replace('.', ',').replace('X', '.')
 
 # --- CLASSES ADMIN ---
@@ -56,14 +56,12 @@ class FaturamentoAdmin(ImportExportModelAdmin):
         meses_nomes = {1:'Jan', 2:'Fev', 3:'Mar', 4:'Abr', 5:'Mai', 6:'Jun',
                        7:'Jul', 8:'Ago', 9:'Set', 10:'Out', 11:'Nov', 12:'Dez'}
         
-        # Inicializa com string "0,00"
-        dados_resumo = {meses_nomes[m]: "0,00" for m in meses_nomes}
+        dados_resumo = {meses_nomes[m]: 0 for m in meses_nomes}
         total_geral = 0
-        
         for item in resumo_mensal:
             if item['mes'] in meses_nomes:
                 valor = float(item['total'] or 0)
-                dados_resumo[meses_nomes[item['mes']]] = formatar_brl(valor)
+                dados_resumo[meses_nomes[item['mes']]] = valor # Envia NÚMERO para não sumir
                 total_geral += valor
 
         extra_context = extra_context or {}
@@ -71,7 +69,7 @@ class FaturamentoAdmin(ImportExportModelAdmin):
             'resumo_financeiro': dados_resumo,
             'total_geral_ano': formatar_brl(total_geral),
             'ano_exibido': ano_filtrado,
-            'metric_class': 'text-success' # Verde para Faturamento
+            'metric_class': 'text-success' # Verde para faturamento
         })
         return super().changelist_view(request, extra_context=extra_context)
 
@@ -100,14 +98,12 @@ class DespesaAdmin(ImportExportModelAdmin):
         meses_nomes = {1:'Jan', 2:'Fev', 3:'Mar', 4:'Abr', 5:'Mai', 6:'Jun',
                        7:'Jul', 8:'Ago', 9:'Set', 10:'Out', 11:'Nov', 12:'Dez'}
         
-        # Inicializa com string "0,00"
-        dados_resumo = {meses_nomes[m]: "0,00" for m in meses_nomes}
+        dados_resumo = {meses_nomes[m]: 0 for m in meses_nomes}
         total_geral = 0
-        
         for item in resumo_mensal:
             if item['mes'] in meses_nomes:
                 valor = float(item['total'] or 0)
-                dados_resumo[meses_nomes[item['mes']]] = formatar_brl(valor)
+                dados_resumo[meses_nomes[item['mes']]] = valor # Envia NÚMERO para não sumir
                 total_geral += valor
 
         extra_context = extra_context or {}
@@ -115,18 +111,16 @@ class DespesaAdmin(ImportExportModelAdmin):
             'resumo_financeiro': dados_resumo,
             'total_geral_ano': formatar_brl(total_geral),
             'ano_exibido': ano_filtrado,
-            'metric_class': 'text-danger' # Vermelho para Despesas
+            'metric_class': 'text-danger' # Vermelho para despesas
         })
         return super().changelist_view(request, extra_context=extra_context)
 
 @admin.register(RelatorioAdvocacia)
 class RelatorioAdmin(admin.ModelAdmin):
-    # Força o nome no menu lateral e título
     RelatorioAdvocacia._meta.verbose_name = "Visualizar Relatório Gerencial"
     RelatorioAdvocacia._meta.verbose_name_plural = "Visualizar Relatórios Gerencial"
 
     def changelist_view(self, request, extra_context=None):
         return redirect('relatorio_advocacia')
-    
     def has_add_permission(self, request): return False
     def has_delete_permission(self, request, obj=None): return False
