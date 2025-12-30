@@ -1,0 +1,883 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$XjbCY5hwNgxBmJohl3aeDu$Dh+mJXmkcr9C+cebR2Dp8YrGpuZ/F3VKP+XT8oQf97Y=",
+    "last_login": "2025-12-28T12:57:40.359Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "cristianorsosua@hotmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-12-28T12:27:52.594Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 1,
+  "fields": {
+    "data": "2024-02-09",
+    "descricao": "Difusor banheiro",
+    "local": "Assaí",
+    "valor": "49.90"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 2,
+  "fields": {
+    "data": "2024-12-11",
+    "descricao": "Cadeiras - 6",
+    "local": "Kabum",
+    "valor": "2706.39"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 3,
+  "fields": {
+    "data": "2024-12-11",
+    "descricao": "Cadeiras - 3",
+    "local": "Mercado Livre",
+    "valor": "1712.93"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 4,
+  "fields": {
+    "data": "2024-12-17",
+    "descricao": "Mesa Centro Auxiliar",
+    "local": "Mercado Livre",
+    "valor": "239.39"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 5,
+  "fields": {
+    "data": "2024-12-17",
+    "descricao": "Cafeteira",
+    "local": "Mercado Livre",
+    "valor": "2899.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 6,
+  "fields": {
+    "data": "2024-12-18",
+    "descricao": "Vaso P decoração",
+    "local": "Mercado Livre",
+    "valor": "71.01"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 7,
+  "fields": {
+    "data": "2024-12-18",
+    "descricao": "Quadro Balança Jud.",
+    "local": "Mercado Livre",
+    "valor": "238.34"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 8,
+  "fields": {
+    "data": "2024-12-18",
+    "descricao": "Moveis",
+    "local": "Mobpro",
+    "valor": "11000.03"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 9,
+  "fields": {
+    "data": "2024-12-18",
+    "descricao": "Café em grãos",
+    "local": "Assaí",
+    "valor": "62.90"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 10,
+  "fields": {
+    "data": "2024-12-20",
+    "descricao": "Monitor Samsung",
+    "local": "Mercado Livre",
+    "valor": "921.97"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 11,
+  "fields": {
+    "data": "2024-12-24",
+    "descricao": "Rodameio",
+    "local": "Mercado Livre",
+    "valor": "278.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 12,
+  "fields": {
+    "data": "2024-12-29",
+    "descricao": "Prod. Banheiro",
+    "local": "Assaí",
+    "valor": "231.61"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 13,
+  "fields": {
+    "data": "2024-12-30",
+    "descricao": "Planta artificial",
+    "local": "Amazon",
+    "valor": "129.89"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 14,
+  "fields": {
+    "data": "2024-12-30",
+    "descricao": "Gesseiro",
+    "local": "",
+    "valor": "2650.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 15,
+  "fields": {
+    "data": "2024-12-30",
+    "descricao": "Instalação porta 80cm",
+    "local": "",
+    "valor": "150.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 16,
+  "fields": {
+    "data": "2024-12-30",
+    "descricao": "Prod. Para pintura, vaso e porta objetos",
+    "local": "Lele da Cuca",
+    "valor": "236.90"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 17,
+  "fields": {
+    "data": "2024-12-31",
+    "descricao": "Quadro Mapa",
+    "local": "Mercado Livre",
+    "valor": "199.92"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 18,
+  "fields": {
+    "data": "2024-12-31",
+    "descricao": "Lixeiras - 4",
+    "local": "Amazon",
+    "valor": "104.57"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 19,
+  "fields": {
+    "data": "2025-01-01",
+    "descricao": "Manutenção Ar. Cond.",
+    "local": "",
+    "valor": "650.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 20,
+  "fields": {
+    "data": "2025-01-02",
+    "descricao": "Tintas",
+    "local": "Renacor",
+    "valor": "990.30"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 21,
+  "fields": {
+    "data": "2025-01-02",
+    "descricao": "Porta 80cm",
+    "local": "Goias Forte Acabam.",
+    "valor": "600.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 22,
+  "fields": {
+    "data": "2025-01-02",
+    "descricao": "Massaneta das portas",
+    "local": "Madecom",
+    "valor": "280.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 23,
+  "fields": {
+    "data": "2025-01-02",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "150.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 24,
+  "fields": {
+    "data": "2025-01-03",
+    "descricao": "Espuma expansiva",
+    "local": "Ferpam",
+    "valor": "46.02"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 25,
+  "fields": {
+    "data": "2025-01-03",
+    "descricao": "Impressora brother",
+    "local": "Amazon",
+    "valor": "2037.97"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 26,
+  "fields": {
+    "data": "2025-01-03",
+    "descricao": "Transformador 110v Impressora",
+    "local": "Amazon",
+    "valor": "120.99"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 27,
+  "fields": {
+    "data": "2025-01-05",
+    "descricao": "Tintas portas",
+    "local": "Renacor",
+    "valor": "222.02"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 28,
+  "fields": {
+    "data": "2025-01-06",
+    "descricao": "Varão Cortina",
+    "local": "Havan",
+    "valor": "179.98"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 29,
+  "fields": {
+    "data": "2025-01-06",
+    "descricao": "Decoração",
+    "local": "Lele da Cuca",
+    "valor": "1134.90"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 30,
+  "fields": {
+    "data": "2025-01-06",
+    "descricao": "Pintor",
+    "local": "",
+    "valor": "1800.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 31,
+  "fields": {
+    "data": "2025-01-06",
+    "descricao": "Água, diversos",
+    "local": "Big",
+    "valor": "63.74"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 32,
+  "fields": {
+    "data": "2025-01-07",
+    "descricao": "Geladeira",
+    "local": "Compra Certa",
+    "valor": "1716.98"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 33,
+  "fields": {
+    "data": "2025-01-08",
+    "descricao": "Tomadas",
+    "local": "Encanel",
+    "valor": "526.94"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 34,
+  "fields": {
+    "data": "2025-01-11",
+    "descricao": "Adaptador HDMI",
+    "local": "Mercado Livre",
+    "valor": "64.90"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 35,
+  "fields": {
+    "data": "2025-01-11",
+    "descricao": "Prod. Limpeza",
+    "local": "Quarteto",
+    "valor": "95.61"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 36,
+  "fields": {
+    "data": "2025-01-11",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "100.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 37,
+  "fields": {
+    "data": "2025-01-15",
+    "descricao": "Porta 70cm",
+    "local": "Mercado Livre",
+    "valor": "784.39"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 38,
+  "fields": {
+    "data": "2025-01-15",
+    "descricao": "Espelho banheiro",
+    "local": "Amazon",
+    "valor": "77.90"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 39,
+  "fields": {
+    "data": "2025-01-15",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 40,
+  "fields": {
+    "data": "2025-01-16",
+    "descricao": "Aparador geladeira",
+    "local": "Eudivan",
+    "valor": "700.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 41,
+  "fields": {
+    "data": "2025-01-18",
+    "descricao": "Logo parede",
+    "local": "Tocantins Acrilicos",
+    "valor": "700.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 42,
+  "fields": {
+    "data": "2025-01-30",
+    "descricao": "Moveis",
+    "local": "Mobpro",
+    "valor": "898.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 43,
+  "fields": {
+    "data": "2025-01-31",
+    "descricao": "Mouse sem fio",
+    "local": "Pointcom",
+    "valor": "139.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 44,
+  "fields": {
+    "data": "2025-02-14",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 45,
+  "fields": {
+    "data": "2025-03-02",
+    "descricao": "Água 500ml - 12",
+    "local": "Assaí",
+    "valor": "20.28"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 46,
+  "fields": {
+    "data": "2025-03-10",
+    "descricao": "Água",
+    "local": "Atacadão",
+    "valor": "99.56"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 47,
+  "fields": {
+    "data": "2025-03-15",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 48,
+  "fields": {
+    "data": "2025-03-23",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "100.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 49,
+  "fields": {
+    "data": "2025-03-28",
+    "descricao": "Tinta parede",
+    "local": "Renacor",
+    "valor": "196.18"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 50,
+  "fields": {
+    "data": "2025-03-28",
+    "descricao": "Puxador portas",
+    "local": "Madecom",
+    "valor": "323.44"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 51,
+  "fields": {
+    "data": "2025-03-30",
+    "descricao": "Instalação porta 70cm",
+    "local": "",
+    "valor": "150.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 52,
+  "fields": {
+    "data": "2025-03-30",
+    "descricao": "Pintura porta 70cm",
+    "local": "",
+    "valor": "100.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 53,
+  "fields": {
+    "data": "2025-04-05",
+    "descricao": "Lampadas",
+    "local": "Meurer",
+    "valor": "56.06"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 54,
+  "fields": {
+    "data": "2025-04-05",
+    "descricao": "Troca de reator e lampadas",
+    "local": "Eletricista",
+    "valor": "80.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 55,
+  "fields": {
+    "data": "2025-04-14",
+    "descricao": "Big",
+    "local": "Água",
+    "valor": "78.15"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 56,
+  "fields": {
+    "data": "2025-04-15",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 57,
+  "fields": {
+    "data": "2025-04-24",
+    "descricao": "PointCom",
+    "local": "Apresentador de Slides",
+    "valor": "125.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 58,
+  "fields": {
+    "data": "2025-05-15",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 59,
+  "fields": {
+    "data": "2025-05-26",
+    "descricao": "Água Mineral",
+    "local": "Atacadão",
+    "valor": "58.44"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 60,
+  "fields": {
+    "data": "2025-06-05",
+    "descricao": "Café em grãos",
+    "local": "Assaí",
+    "valor": "129.90"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 61,
+  "fields": {
+    "data": "2025-07-26",
+    "descricao": "Água e diversos",
+    "local": "Atacadão",
+    "valor": "98.94"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 62,
+  "fields": {
+    "data": "2025-08-17",
+    "descricao": "Água e diversos",
+    "local": "Assaí",
+    "valor": "155.49"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 63,
+  "fields": {
+    "data": "2025-06-15",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 64,
+  "fields": {
+    "data": "2025-07-15",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 65,
+  "fields": {
+    "data": "2025-08-15",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 66,
+  "fields": {
+    "data": "2025-09-15",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 67,
+  "fields": {
+    "data": "2025-10-14",
+    "descricao": "Aluguel",
+    "local": "Cecilia",
+    "valor": "2000.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 68,
+  "fields": {
+    "data": "2025-10-07",
+    "descricao": "Placa ",
+    "local": "Apce Midia",
+    "valor": "762.45"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 69,
+  "fields": {
+    "data": "2025-10-16",
+    "descricao": "Água e diversos",
+    "local": "Atacadão",
+    "valor": "77.40"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 70,
+  "fields": {
+    "data": "2025-04-19",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "80.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 71,
+  "fields": {
+    "data": "2025-05-24",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "80.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 72,
+  "fields": {
+    "data": "2025-06-21",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "80.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 73,
+  "fields": {
+    "data": "2025-07-26",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "80.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 74,
+  "fields": {
+    "data": "2025-08-16",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "80.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 75,
+  "fields": {
+    "data": "2025-09-20",
+    "descricao": "Limpeza",
+    "local": "",
+    "valor": "80.00"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 76,
+  "fields": {
+    "data": "2025-07-08",
+    "descricao": "Internet",
+    "local": "VIVO",
+    "valor": "40.63"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 77,
+  "fields": {
+    "data": "2025-08-08",
+    "descricao": "Internet",
+    "local": "VIVO",
+    "valor": "89.99"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 78,
+  "fields": {
+    "data": "2025-09-08",
+    "descricao": "Internet",
+    "local": "VIVO",
+    "valor": "92.10"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 79,
+  "fields": {
+    "data": "2025-10-08",
+    "descricao": "Internet",
+    "local": "VIVO",
+    "valor": "89.99"
+  }
+},
+{
+  "model": "advocacia.despesaadvocacia",
+  "pk": 80,
+  "fields": {
+    "data": "2025-11-05",
+    "descricao": "Internet",
+    "local": "VIVO",
+    "valor": "94.01"
+  }
+},
+{
+  "model": "imoveis.imovel",
+  "pk": 1,
+  "fields": {
+    "nome": "V_1702",
+    "endereco": "Q. 201 Sul. Conjunto 01 Lote 13. Rua NSA - Plano Diretor Sul, Palmas - TO, 77015-200",
+    "descricao": "Vivence Suítes",
+    "valor_diaria": "0.00",
+    "status": "D",
+    "valor_compra": "0.00"
+  }
+},
+{
+  "model": "imoveis.imovel",
+  "pk": 2,
+  "fields": {
+    "nome": "V_1708",
+    "endereco": "Q. 201 Sul. Conjunto 01 Lote 13. Rua NSA - Plano Diretor Sul, Palmas - TO, 77015-200",
+    "descricao": "Vivence Suítes",
+    "valor_diaria": "0.00",
+    "status": "D",
+    "valor_compra": "0.00"
+  }
+},
+{
+  "model": "imoveis.locacao",
+  "pk": 1,
+  "fields": {
+    "imovel": 1,
+    "cliente": "Cristiano Sousa",
+    "cpf": "000.000.000-00",
+    "telefone": "(00) 00000-0000",
+    "data_entrada": "2025-12-28",
+    "data_saida": "2025-12-29",
+    "valor_cobrado_diaria": "100.00"
+  }
+},
+{
+  "model": "imoveis.locacao",
+  "pk": 2,
+  "fields": {
+    "imovel": 1,
+    "cliente": "Cristiano Rodrigues",
+    "cpf": "000.000.000-00",
+    "telefone": "(00) 00000-0000",
+    "data_entrada": "2025-12-29",
+    "data_saida": "2025-12-30",
+    "valor_cobrado_diaria": "150.00"
+  }
+},
+{
+  "model": "imoveis.locacao",
+  "pk": 3,
+  "fields": {
+    "imovel": 2,
+    "cliente": "Cristiano",
+    "cpf": "000.000.000-00",
+    "telefone": "(00) 00000-0000",
+    "data_entrada": "2026-01-05",
+    "data_saida": "2026-01-08",
+    "valor_cobrado_diaria": "200.00"
+  }
+}
+]
